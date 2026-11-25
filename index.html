@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#11183d">
-<title>9altitudes | Dynamics 365 CE assessment</title>
+<title>9altitudes | assessment kandidaat</title>
 <style>
   @font-face { font-family: Barlow; font-style: normal; font-weight: 400; font-display: swap; src: url("https://fonts.gstatic.com/s/barlow/v13/7cHpv4kjgoGqM7EPCw.ttf") format("truetype"); }
   @font-face { font-family: Barlow; font-style: normal; font-weight: 600; font-display: swap; src: url("https://fonts.gstatic.com/s/barlow/v13/7cHqv4kjgoGqM7E30-8c4A.ttf") format("truetype"); }
@@ -87,7 +87,7 @@
 </head>
 <body>
 <main class="shell">
-  <header><div><div class="brand"><span class="brand-symbol" aria-hidden="true">△</span><span class="brand-name">9altitudes</span></div><span class="brand-caption">Technisch assessment · zelfstandig concept</span></div><div class="row"><button id="home-button">Overzicht</button><button id="export-button" disabled>Exporteer dossier</button><span class="pill">Lokaal · begeleide afname</span></div></header>
+  <header><div><div class="brand"><span class="brand-symbol" aria-hidden="true">△</span><span class="brand-name">9altitudes</span></div><span class="brand-caption">Technisch assessment · kandidaatversie</span></div><div class="row"><button id="home-button">Overzicht</button><button id="export-button" disabled>Exporteer dossier</button><span class="pill">Kandidaat · tijdelijk in deze tab</span></div></header>
   <div id="message" class="status" role="status" aria-live="polite"></div>
   <section id="home">
     <div class="hero">
@@ -106,10 +106,10 @@
         <p>Per niveau: 4 meerkeuzevragen (20 punten), 2 code-opgaven (40 punten) en 4 open vragen (40 punten). Totaal: 100 punten. De tijd is een richtlijn, geen automatische deadline.</p>
         <p>Gebruik van Microsoft Learn en taalreferenties is toegestaan; generatieve AI en hulp van anderen niet, tenzij de beoordelaar vooraf voor alle kandidaten dezelfde afwijkende afspraken maakt. Geef aannames expliciet aan. Pseudocode mag waar gevraagd. Code wordt niet uitgevoerd of automatisch gecompileerd.</p>
         <p>Theorie wordt automatisch nagekeken. Code en open antwoorden beoordeelt een mens met vaste criteria en een vervolginterview. Er is geen automatische aanname- of afwijzingsbeslissing. De niveau-indeling en score-indicatie zijn een eigen voorstel, geen gevalideerde selectietest of beleid van 9altitudes.</p>
-        <p><strong>Privacy en grenzen:</strong> antwoorden blijven in de browseropslag op deze computer. Exportbestanden bevatten antwoorden en feedback. Er is geen account, toegangsbeveiliging, proctoring of veilige scheiding tussen kandidaat en beoordelaar. Antwoordmodellen staan in de pagina en zijn technisch in te zien. Alleen gebruiken voor begeleide afname; niet als onbeveiligde publieke toets verspreiden. Deel geen echte klantgegevens, tokens of persoonsgegevens.</p>
+        <p><strong>Privacy en grenzen:</strong> antwoorden worden alleen tijdelijk in deze browsertab opgeslagen; ze zijn niet zichtbaar in het beoordelaarsoverzicht. Exporteer na afloop het dossier en lever het in via het afgesproken kanaal. Sluit de tab pas nadat je het bestand hebt opgeslagen. Er is geen account of technische toegangsbeveiliging en antwoordmodellen staan in de pagina. Deel geen echte klantgegevens, tokens of persoonsgegevens.</p>
       </details>
     </div>
-    <div class="card"><h2>Eerdere afnames op deze computer</h2><div id="sessions"></div><button id="import-button">Importeer eerder geëxporteerd dossier</button><input id="import-file" type="file" accept=".json,application/json" hidden></div>
+    <div class="card"><h2>Dossier inleveren</h2><p>Na afronden download je via <strong>Exporteer dossier</strong> een JSON-bestand met je antwoorden. Stuur dit bestand via het kanaal dat de beoordelaar heeft afgesproken.</p></div>
     <div class="card"><h2>Aansluiting op de vacature</h2>
       <p>De opdrachten richten zich op C#/OOP, Dynamics 365 CE, Dataverse, Power Platform, plug-ins, API-integraties, OAuth, testen, code reviews, CI/CD, migratie en support. Azure en SQL zijn in de vacature een pré; de verdiepende Azure-vragen zijn hier bewust onderdeel van het medior-/seniorprofiel.</p>
     </div>
@@ -171,7 +171,7 @@ const levels = {
     written("s10", "open", "Consultancy / besluitvorming", "Een architectuurkeuze verdedigen", "Een klant wil voor elk proces maatwerk in C#. Een functioneel consultant wil alles in Power Automate. Stel een besliskader op en pas het toe op directe transactievalidering, een goedkeuringsflow en een hoogvolume ERP-koppeling. Bespreek kosten, beheer, grenzen en overdracht.", "", ["Criteria: transactionele eis, complexiteit, volume/latency en licenties (3).", "Drie keuzes met aantoonbare trade-offs, geen dogma (4).", "ADR, PoC/meting, ownership, overdracht en herijkmoment (3)."], "Validatie in sync serverpipeline als invariant; approval via passende low-code workflow; integratie via flow of code/queue afhankelijk van meetbare eisen en beperkingen. Bereken licentie/requestkosten, beheer/skillset, retries, deployment en monitoring. Leg argumenten, alternatieven en risicovalidatie vast met klant en functioneel consultant; plan herbeoordeling.")
   ]}
 };
-const STORAGE_KEY = "talentlab.d365ce.v1";
+const STORAGE_KEY = "9aassessment.candidate.session.v1";
 let attempts = [];
 let current = null;
 let selectedLevel = "junior";
@@ -194,7 +194,7 @@ function migrateBankV1(a) {
   return { ...a, bankVersion: BANK_VERSION, answers };
 }
 function save() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(attempts)); storageAvailable = true; }
+  try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(attempts)); storageAvailable = true; }
   catch (error) { storageAvailable = false; message("Opslaan in browseropslag is mislukt. Houd deze pagina open en exporteer het dossier om antwoorden te bewaren. " + error.message); }
 }
 function validateAttempt(a) {
@@ -220,7 +220,7 @@ function validateAttempt(a) {
   };
 }
 try {
-  const raw = localStorage.getItem(STORAGE_KEY);
+  const raw = sessionStorage.getItem(STORAGE_KEY);
   if (raw) {
     const data = JSON.parse(raw);
     if (!Array.isArray(data)) throw new Error("Opslag heeft een onverwacht formaat.");
@@ -254,6 +254,7 @@ for (const [key, level] of Object.entries(levels)) {
 }
 selectLevel("junior");
 function renderSessions() {
+  if (!$("sessions")) return;
   $("sessions").replaceChildren();
   if (!attempts.length) $("sessions").append(node("p", "Nog geen afnames opgeslagen.", "muted"));
   for (const attempt of [...attempts].reverse()) {
@@ -400,8 +401,15 @@ function renderReview() {
 $("start-button").onclick = () => {
   const candidate = $("candidate").value.trim();
   if (!candidate) { message("Vul eerst een kandidaatcode in, zonder persoonsgegevens."); $("candidate").focus(); return; }
+  const previous = attempts[0];
+  if (previous && previous.candidate === candidate) {
+    current = previous; index = 0;
+    current.status === "draft" ? renderCandidate() : renderReview();
+    return;
+  }
+  if (previous && !confirm("Deze browsertab bevat al een assessment. Een nieuwe kandidaatcode vervangt die sessie. Exporteer het dossier eerst als je het wilt bewaren. Doorgaan?")) return;
   current = { id: crypto.randomUUID(), bankVersion: BANK_VERSION, candidate, level: selectedLevel, status: "draft", startedAt: new Date().toISOString(), submittedAt: null, answers: {}, grades: {} };
-  attempts.push(current); index = 0; persist(); if (storageAvailable && !loadFailed) message(""); renderCandidate();
+  attempts = [current]; index = 0; persist(); if (storageAvailable && !loadFailed) message(""); renderCandidate();
 };
 $("previous").onclick = () => { if (index > 0) { index--; renderCandidate(); } };
 $("next").onclick = () => { if (index < 9) { index++; renderCandidate(); } };
@@ -421,19 +429,6 @@ $("export-button").onclick = () => {
   const url = URL.createObjectURL(new Blob([JSON.stringify(dossier, null, 2)], { type: "application/json" }));
   const a = document.createElement("a"); a.href = url; a.download = `assessment-${current.level}-${current.id}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
   message("Dossier geëxporteerd. Het bestand bevat antwoorden en eventuele feedback; bewaar het veilig.");
-};
-$("import-button").onclick = () => $("import-file").click();
-$("import-file").onchange = async event => {
-  const file = event.target.files[0]; if (!file) return;
-  try {
-    if (file.size > 2000000) throw new Error("Bestand is te groot (maximaal 2 MB).");
-    const data = JSON.parse(await file.text());
-    if (data.format !== "talentlab-assessment" || data.version !== 1) throw new Error("Onbekend exportformaat.");
-    const attempt = validateAttempt(data.attempt);
-    if (attempts.some(a => a.id === attempt.id)) throw new Error("Dit dossier bestaat al. Bestaande antwoorden worden niet overschreven.");
-    attempts.push(attempt); persist(); renderSessions(); message("Dossier geïmporteerd." + (storageAvailable && !loadFailed ? "" : " Niet lokaal opgeslagen: exporteer om te bewaren."));
-  } catch (error) { message("Importeren mislukt: " + error.message); }
-  finally { event.target.value = ""; }
 };
 setInterval(elapsed, 15000);
 renderSessions();
