@@ -280,6 +280,173 @@ function displayQuestion(question, attempt) {
     : question;
 }
 function isCombined(attempt) { return attempt.level === "combined" || attempt.level === PREVIOUS_LEVEL || attempt.level === CODE_LEVEL || attempt.level === NEW_LEVEL; }
+// BEGIN EMBEDDED REVIEW EXAMPLES
+// Embedded in the manager page; examples are guidance, not automatic scores.
+const reviewExamples = {
+  j11: {
+    partial: 'return name?.Trim() ?? "Unknown";\nTests: null → Unknown; " Ada " → Ada.',
+    partialWhy: 'Null en trimmen zijn afgedekt, maar een lege string of alleen witruimte levert geen Unknown op.',
+    full: 'return string.IsNullOrWhiteSpace(name) ? "Unknown" : name.Trim();\nTests: null → Unknown; "  " → Unknown; " Ada " → Ada.',
+    fullWhy: 'Alle gevraagde invoertypen worden behandeld en de tests bevatten verwachte uitkomsten.'
+  },
+  j12: {
+    partial: 'return price * quantity;\nTests: (2m, 3) → 6m; (0m, 3) → 0m.',
+    partialWhy: 'De berekening en nul zijn goed, maar negatieve invoer wordt niet afgewezen.',
+    full: 'if (price < 0) throw new ArgumentOutOfRangeException(nameof(price));\nif (quantity < 0) throw new ArgumentOutOfRangeException(nameof(quantity));\nreturn price * quantity;\nTests: (2m, 3) → 6m; (0m, 3) → 0m; (-1m, 1) en (1m, -1) → ArgumentOutOfRangeException.',
+    fullWhy: 'Beide negatieve invoeren worden afgewezen; berekening, nul en tests zijn concreet.'
+  },
+  m11: {
+    partial: 'var name = target.GetAttributeValue<string>("name");\nreturn string.IsNullOrWhiteSpace(name) ? "Empty" : name.Trim();\nTests: null → Empty; " Ada " → Ada.',
+    partialWhy: 'Null en trimmen zijn afgedekt, maar een afwezig veld wordt ten onrechte als Empty behandeld.',
+    full: 'if (!target.Contains("name")) return "Not provided";\nvar name = target.GetAttributeValue<string>("name");\nreturn string.IsNullOrWhiteSpace(name) ? "Empty" : name.Trim();\nTests: afwezig → Not provided; aanwezig met null → Empty; " Ada " → Ada.',
+    fullWhy: 'Het onderscheid tussen afwezig en expliciet leeg is correct en de tests geven uitkomsten.'
+  },
+  m12: {
+    partial: 'return statusCode >= 500;\nTests: 500 → true; 400 → false.',
+    partialWhy: '500 wordt herkend, maar 429 ontbreekt en codes boven 599 worden ten onrechte geaccepteerd.',
+    full: 'return statusCode == 429 || (statusCode >= 500 && statusCode <= 599);\nTests: 429 → true; 500 → true; 599 → true; 600 → false; 400 → false.',
+    fullWhy: '429, beide grenzen en niet-tijdelijke statuscodes zijn correct afgedekt.'
+  },
+  j5: {
+    partial: 'return $"{first} {last}".Trim();\nTests: ("Ada", "Lovelace") → Ada Lovelace.',
+    partialWhy: 'De normale combinatie werkt, maar witruimte binnen de delen en twee lege delen zijn niet correct afgehandeld; randgevallen ontbreken.',
+    full: 'var parts = new[] { first?.Trim(), last?.Trim() }.Where(p => !string.IsNullOrWhiteSpace(p));\nvar result = string.Join(" ", parts);\nreturn result.Length == 0 ? "Onbekend" : result;\nTests: (null, null) → Onbekend; (" Ada ", " Lovelace ") → Ada Lovelace; (" ", "Jansen") → Jansen.',
+    fullWhy: 'Null en lege delen worden overgeslagen, de scheiding is correct en drie tests bevatten randgevallen.'
+  },
+  j6: {
+    partial: 'var target = (Entity)context.InputParameters["Target"];\ntarget["name"] = target.GetAttributeValue<string>("name").Trim();',
+    partialWhy: 'Trimmen op Target is goed, maar context, afwezig en null zijn niet veilig afgehandeld en tests en registratie ontbreken.',
+    full: 'if (context == null || context.MessageName != "Update" || context.Stage != 20 ||\n    !context.InputParameters.Contains("Target") || context.InputParameters["Target"] is not Entity target || target.LogicalName != "account") return;\nif (!target.Contains("name")) return;\nvar name = target.GetAttributeValue<string>("name");\nif (string.IsNullOrWhiteSpace(name)) throw new InvalidPluginExecutionException("Name is required.");\ntarget["name"] = name.Trim();\nRegistratie: sync PreOperation Update account, filterattribuut name.\nTests: afwezig → geen wijziging; null/whitespace → exception; " Ada " → "Ada"; verkeerde context → geen actie.',
+    fullWhy: 'De pipeline en Target zijn bewaakt, alle waardegevallen zijn afgedekt en er is geen extra Update.'
+  },
+  j7: {
+    partial: 'Ik vraag welke velden bepalen of een contact dubbel is en test vervolgens met twee dezelfde e-mailadressen.',
+    partialWhy: 'De definitie en een test komen aan bod, maar twee meetbare criteria, uitzonderingen en de afspraak over blokkeren ontbreken.',
+    full: 'Ik vraag welke sleutel bepalend is, of een gedeeld e-mailadres mag en of we detecteren of blokkeren bij UI, API en import. Afspraak: identieke externe sleutel blokkeren; gedeeld e-mailadres bij verschillende sleutels toestaan. Test 1: dezelfde sleutel via UI én API → tweede write geweigerd. Test 2: verschillende sleutels met gedeeld e-mailadres → beide writes toegestaan.',
+    fullWhy: 'Twee toetsbare criteria met uitkomsten, uitzonderingen, kanalen en het besluit blokkeren zijn expliciet.'
+  },
+  j8: {
+    partial: 'Ik vraag de gebruiker wanneer opslaan mislukt en probeer het na te doen in test.',
+    partialWhy: 'Reproductie is een goed begin, maar correlatie, veilige diagnostiek en communicatie ontbreken.',
+    full: 'Ik vraag naar tijdstip, stappen, impact, correlatie-ID, betrokken rollen en recente wijzigingen. Ik vergelijk beperkte plug-intraces op die ID en reproduceer met geschikte testdata in test. Ik log geen geheimen of onnodige persoonsgegevens en spreek een statusupdate en escalatiemoment af.',
+    fullWhy: 'De aanpak dekt onderzoek, passende testomgeving, gegevensminimalisatie en communicatie.'
+  },
+  j9: {
+    partial: 'Ik maak een pull request en zet de wijziging na review in productie.',
+    partialWhy: 'Review is genoemd, maar tests, gescheiden omgevingen en herstel zijn niet uitgewerkt.',
+    full: 'Ik commit op een branch, voer unit- en passende integratietests uit en laat een PR reviewen. De pipeline bouwt een versieerbaar solution-artifact voor test; na acceptatie volgt een goedgekeurde productie-deploy en smoke test. Vooraf leg ik herstel, databescherming en verantwoordelijke vast en bewaar ik het vorige artifact.',
+    fullWhy: 'Tests, herhaalbare levering, omgevingen, controle en herstelafspraak zijn concreet.'
+  },
+  j10: {
+    partial: 'Ik gebruik OAuth en probeer een time-out opnieuw.',
+    partialWhy: 'Authenticatie en een retry zijn genoemd, maar geheimbeheer, begrenzing en dubbele orders ontbreken.',
+    full: 'Ik gebruik OAuth met minimale rechten en beveiligde opslag of managed identity waar ondersteund. Bij tijdelijke time-outs pas ik begrensde retries met backoff toe. Een unieke externe ordersleutel en upsert maken herlevering veilig; definitieve fouten worden zichtbaar zonder tokens of klantgegevens te loggen.',
+    fullWhy: 'Authenticatie, tijdelijke fouten, idempotentie en zichtbare foutafhandeling zijn uitgewerkt.'
+  },
+  m5: {
+    partial: 'var id = target.GetAttributeValue<string>("new_externalid") ?? pre.GetAttributeValue<string>("new_externalid");\nif (string.IsNullOrWhiteSpace(id)) throw new InvalidPluginExecutionException("Missing ID");',
+    partialWhy: 'De fallback verwart expliciet null met afwezig en negeert de effectieve status, configuratiefouten en tests.',
+    full: 'if (target == null || pre == null || target.LogicalName != "account" || pre.LogicalName != "account") throw new InvalidPluginExecutionException("Invalid context.");\nif (!target.Contains("statecode") && !pre.Contains("statecode")) throw new InvalidPluginExecutionException("Missing state image.");\nif (!target.Contains("new_externalid") && !pre.Contains("new_externalid")) throw new InvalidPluginExecutionException("Missing ID image.");\nvar state = target.Contains("statecode") ? target.GetAttributeValue<OptionSetValue>("statecode") : pre.GetAttributeValue<OptionSetValue>("statecode");\nvar id = target.Contains("new_externalid") ? target.GetAttributeValue<string>("new_externalid") : pre.GetAttributeValue<string>("new_externalid");\nif (state == null) throw new InvalidPluginExecutionException("Missing state.");\nif (state.Value == 0 && string.IsNullOrWhiteSpace(id)) throw new InvalidPluginExecutionException("Active accounts require an external ID.");\nTests: alleen status actief zonder ID → fout; alleen ID wissen met actief pre-image → fout; expliciet null → fout; inactief zonder ID → toegestaan; vereist ontbrekend imageveld → configuratiefout.',
+    fullWhy: 'Effectieve velden, expliciet null, de invariant en configuratiefouten zijn onderscheiden en getest.'
+  },
+  m6: {
+    partial: 'await store.TryApplyAsync(message.EventId, message.OrderId, message.Amount, ct);',
+    partialWhy: 'De store en cancellation worden doorgegeven, maar invoerafspraken en tests ontbreken.',
+    full: 'if (message == null || string.IsNullOrWhiteSpace(message.EventId) || string.IsNullOrWhiteSpace(message.OrderId) || message.Amount <= 0) throw new ArgumentException("Invalid order");\nct.ThrowIfCancellationRequested();\nawait store.TryApplyAsync(message.EventId, message.OrderId, message.Amount, ct);\nAfspraak: bedrag moet positief zijn; false betekent al verwerkt. Permanente fouten moeten door de host apart worden afgehandeld.\nTests: success → één store-call; duplicate false → geen tweede effect; storefout → exception; lege ID → exception zonder call; geannuleerde token → cancellation.',
+    fullWhy: 'Invoer en aanname zijn expliciet; dubbele levering, foutpropagatie en cancellation zijn getest.'
+  },
+  m7: {
+    partial: 'Ik gebruik een plug-in om de order te controleren en een flow voor de ERP-koppeling.',
+    partialWhy: 'De scheiding is genoemd, maar betrouwbare overdracht, idempotentie en afwegingen ontbreken.',
+    full: 'Een synchrone plug-in bewaakt de invariant vóór de write. Via een aantoonbaar betrouwbare eventbron gaat de ERP-wijziging asynchroon verder; de verwerking is idempotent en tijdelijke fouten worden begrensd herhaald. Flow past bij beheersbare schaal en bestaand beheer; Function/queue geeft meer programmeerbare controle. Ik toon status en blijvende fouten aan gebruikers en beheer.',
+    fullWhy: 'Transactiegrens, betrouwbare verwerking, foutzichtbaarheid en de flow-versus-Function-afweging zijn benoemd.'
+  },
+  m8: {
+    partial: 'Ik exporteer accounts en contacten en importeer ze in Dataverse, daarna vergelijk ik de aantallen.',
+    partialWhy: 'Er is een globale route en telling, maar mapping, relaties, replay en cut-over zijn onvoldoende.',
+    full: 'Ik profileer data in staging, map eigenaars en keuzes en gebruik stabiele externe sleutels. Eerst een proefmigratie, dan accounts vóór contacten; relaties worden gecontroleerd. Batches respecteren throttling, checkpoints en herhaalbare upserts, met een foutenlijst. Ik vergelijk aantallen én sleutels en steekproeven, plan een deltafreeze en spreek go/no-go en herstel bij de cut-over af.',
+    fullWhy: 'Mapping, relaties, verwerkbaarheid, reconciliatie en cut-over zijn concreet.'
+  },
+  m9: {
+    partial: 'Ik kijk in de plug-intraces en verbeter de query als die traag is.',
+    partialWhy: 'Tracing is relevant, maar baseline, hypothesen, veilige meting en herstel ontbreken.',
+    full: 'Ik vergelijk de 300 ms-baseline met versie, volume, correlatie-ID en timings per stap. Ik onderzoek brede queries, N+1, locks, extra writes en synchrone externe calls met beperkte diagnostiek. In een representatieve loadtest meet ik vóór en na met als doel de opslag weer rond 300 ms te krijgen; ik bespreek een goedgekeurde mitigatie of herstel en monitor opslagduur en fouten.',
+    fullWhy: 'Vergelijking, onderzoek, reproduceerbare meting en beheerste mitigatie zijn uitgewerkt.'
+  },
+  m10: {
+    partial: 'Ik vraag om de API-documentatie en maak een schatting voor vrijdag.',
+    partialWhy: 'Een belangrijke vraag is gesteld, maar onzekerheid, scope, testen en afhankelijkheden ontbreken.',
+    full: 'Ik vraag naar contract, sandbox, auth, volume, beschikbaarheid en foutscenario’s. Een korte spike verkleint onzekerheid; ik splits MVP en latere wensen en raam met bandbreedte, aannames en afhankelijkheden. We spreken acceptatiecriteria, testdata, review, releasepad en een go/no-go af en bespreken de onzekerheid met de klant.',
+    fullWhy: 'Technische vragen, onderbouwde onzekerheid, scope en levering zijn benoemd.'
+  },
+  s5: {
+    partial: 'var snapshot = await repo.ReadAsync(accountId, ct);\nawait repo.TryUpdateAsync(accountId, desiredAmount, snapshot.Version, ct);',
+    partialWhy: 'De conditionele write wordt gebruikt, maar validatie, conflictbehandeling, valuta-invariant en tests ontbreken.',
+    full: 'if (accountId == Guid.Empty || desiredAmount < 0 || string.IsNullOrWhiteSpace(currency)) throw new ArgumentException("Invalid input");\nfor (var i = 0; i < 3; i++) {\n    ct.ThrowIfCancellationRequested();\n    var snapshot = await repo.ReadAsync(accountId, ct);\n    if (!string.Equals(snapshot.Currency, currency, StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException("Currency mismatch");\n    if (await repo.TryUpdateAsync(accountId, desiredAmount, snapshot.Version, ct)) return;\n}\nthrow new InvalidOperationException("Concurrency conflict after three attempts");\nTests: conflict dan succes → nieuwe versie gebruikt; drie conflicten → exception; valuta verandert na conflict → geen tweede write; ongeldige invoer → exception; cancellation → doorgelaten.',
+    fullWhy: 'Validatie en valuta worden herhaald, writes zijn begrensd en fouten, cancellation en tests zijn expliciet.'
+  },
+  s6: {
+    partial: 'var item = await repo.ClaimAsync(ct);\nif (item != null) await sender.SendAsync(item.EventId, item.Payload, ct);',
+    partialWhy: 'Het claimen en de stabiele ID zijn goed, maar markeren, herstelcontract en failuretests ontbreken.',
+    full: 'var item = await repo.ClaimAsync(ct);\nif (item is null) return;\nawait sender.SendAsync(item.EventId, item.Payload, ct);\nawait repo.MarkSentAsync(item.Id, ct);\nBronwrite en outbox zijn atomair in dezelfde eigen store; claim is atomair en een verlopen lease maakt herstel mogelijk. De ontvanger slaat EventId en business-effect duurzaam en atomair op. Er is geen globale exactly-once-garantie.\nTests: sendfail → niet gemarkeerd; markfail → replay veilig; crash na send → replay veilig; verlopen lease → record opnieuw claimbaar.',
+    fullWhy: 'Verzendvolgorde, grenzen van de garantie, lease, ontvanger-idempotentie en failuretests zijn uitgewerkt.'
+  },
+  s7: {
+    partial: 'Ik zet wijzigingen op een queue en probeer het opnieuw als het ERP offline is.',
+    partialWhy: 'Buffering is een begin, maar garanties, capaciteit, volgorde en controle ontbreken.',
+    full: 'Aanname: piek 100/s maximaal 10 minuten en gemiddeld circa 0,58/s. Twee uur storing plus één piek vraagt buffer voor minstens circa 65.000 berichten; bevestig dit met metingen. Bij 6/s ERP-verwerking duurt die achterstand bij gemiddeld verkeer ongeveer 3,3 uur; controleer limieten. De 5-minuten-SLO geldt normaal, niet tijdens de storing. Gebruik een aantoonbaar betrouwbare Dataverse-eventbron met voldoende retentie en reconciliatie, geen verzonnen cross-system transactie. Bewaar volgorde per order, verwerk met duurzame idempotentie, DLQ en gecontroleerde replay. Monitor oudste bericht, achterstand en reconciliatie, met minimale rechten en alerts.',
+    fullWhy: 'Aannames, capaciteit, publicatiegrenzen, idempotentie, volgorde en operationeel herstel zijn concreet.'
+  },
+  s8: {
+    partial: 'Ik review voortaan alle plug-ins en vraag het team om meer tests te schrijven.',
+    partialWhy: 'Reviews en tests zijn relevant, maar dit maakt de beoordelaar een bottleneck en biedt geen plan of meting.',
+    full: 'Week 1: onderzoek samen en zonder schuldvraag traces, reviews en baseline voor fouten en PR-doorlooptijd. Week 2–3: maak templates, gerichte tests en automatische querychecks. Week 4: paired reviews en coaching. Week 5–6: roteer reviews en draag ownership over. Vergelijk productiefouten en doorlooptijd met de baseline, niet individuele rankings.',
+    fullWhy: 'Het antwoord bevat oorzaken, concrete verbeteringen, gedeeld eigenaarschap en meting in zes weken.'
+  },
+  s9: {
+    partial: 'Ik verwijder de logs en verander de secret.',
+    partialWhy: 'Rotatie is relevant, maar ongecontroleerd wissen kan bewijs vernietigen; impact en verantwoordelijken ontbreken.',
+    full: 'Beperk direct de logging en trek blootgestelde tokens of credentials in en roteer waar passend. Betrek security en privacy, bepaal de scope en bewaar minimaal bewijs afgeschermd met beperkte toegang en retentie. Zij beoordelen meldplichten. Voeg structureel allowlist-logging, redactie, scanners, tests en een incidentrunbook toe.',
+    fullWhy: 'Directe beperking, bewijsbehoud, escalatie en structurele preventie zijn uitgewerkt.'
+  },
+  s10: {
+    partial: 'Ik kies Power Automate voor alles omdat het sneller te bouwen is.',
+    partialWhy: 'Er ontbreekt een afweging per scenario en aandacht voor transacties, beheer en kosten.',
+    full: 'Ik vergelijk transactionele eisen, volume, latency, licenties en beheer. Directe invariant: synchrone servervalidatie; approval: flow bij passende licenties; hoogvolume ERP: queue en code of flow afhankelijk van metingen en beheer. Ik leg alternatieven en kosten vast in een ADR, toets risico’s met een PoC en spreek eigenaar, overdracht en herijkmoment af.',
+    fullWhy: 'Het kader is op drie gevallen toegepast en governance en overdracht zijn benoemd.'
+  }
+};
+const revisedReviewExamples = {
+  j7: {
+    partial: 'Ik vraag welke velden dubbel zijn en test twee contacten met dezelfde waarde.',
+    partialWhy: 'Er is een vraag en een idee voor een test, maar een tweede vraag, expliciete regel en verwachte uitkomst ontbreken.',
+    full: 'Welke sleutel maakt een contact uniek? Mogen twee mensen hetzelfde e-mailadres delen? Afspraak: een bestaande externe sleutel wordt geblokkeerd; gedeelde e-mail met verschillende sleutels mag. Test: voeg contact A met sleutel 123 toe; voeg contact B met sleutel 123 toe → de tweede invoer wordt geweigerd. Met sleutel 456 en dezelfde e-mail → toegestaan.',
+    fullWhy: 'Twee vragen, een concrete regel en een reproduceerbare test met uitkomst zijn aanwezig.'
+  },
+  m7: {
+    partial: 'Ik controleer de order in een plug-in en gebruik een flow voor het ERP.',
+    partialWhy: 'De scheiding is genoemd, maar een betrouwbare route, herhaling en foutzichtbaarheid ontbreken.',
+    full: 'Ik valideer vóór opslaan server-side in een synchrone plug-in. Na de write gebruikt een betrouwbare eventbron een queue voor asynchrone ERP-verwerking, zodat de gebruiker niet wacht. Ik maak verwerking met een vaste sleutel idempotent, probeer tijdelijke fouten begrensd opnieuw en toon blijvende fouten in een beheerstatus.',
+    fullWhy: 'Controle, betrouwbare asynchrone overdracht, herhaling en zichtbare fouten zijn concreet.'
+  },
+  s7: {
+    partial: 'Ik gebruik een queue en stuur de berichten opnieuw zodra het ERP terug is.',
+    partialWhy: 'Buffering en herstel zijn genoemd, maar duplicaten en controle op ontbrekende wijzigingen ontbreken.',
+    full: 'Ik ga uit van een eventbron die wijzigingen duurzaam vastlegt met voldoende retentie voor twee uur uitval. Een queue bewaart de verwerking; bij herstel gebruikt de ontvanger een stabiele wijzigings-ID om dubbele effecten te voorkomen. Fouten gaan naar een herstelbare foutenlijst. Ik monitor achterstand en vergelijk bron en doel na herstel om ontbrekende wijzigingen te vinden.',
+    fullWhy: 'Aannames, duurzame overdracht, idempotentie en controle op volledigheid zijn beschreven.'
+  },
+  s8: {
+    partial: 'Ik vraag het team meer tests toe te voegen.',
+    partialWhy: 'Een verbetering is genoemd, maar oorzaken, tweede actie, gedeeld eigenaarschap en meting ontbreken.',
+    full: 'Ik bekijk samen met het team traces en eerdere incidenten om de vertraging te vinden. We maken testfixtures en voegen een controle voor brede queries aan de pipeline toe; teamleden voeren samen reviews uit en delen ownership. We meten het aantal relevante productiefouten per maand en vergelijken dat met de beginsituatie.',
+    fullWhy: 'Oorzaakanalyse, twee teamverbeteringen, gedeeld eigenaarschap en een meetbare indicator zijn benoemd.'
+  }
+};
+function examplesFor(attempt, question) {
+  const revised = [PREVIOUS_LEVEL, CODE_LEVEL, NEW_LEVEL].includes(attempt.level);
+  return (revised && revisedReviewExamples[question.id]) || reviewExamples[question.id];
+}
+// END EMBEDDED REVIEW EXAMPLES
 
 const STORAGE_KEY = "talentlab.d365ce.v1";
 let attempts = [];
@@ -544,6 +711,21 @@ function renderReview() {
     } else {
       const list = node("ul"); question.criteria.forEach(criterion => list.append(node("li", criterion)));
       model.append(list, node("pre", question.model, "review-answer"));
+      const examples = examplesFor(current, question);
+      if (examples) {
+        model.append(
+          node("p", "IJkvoorbeelden: beoordeel zelf aan de hand van de criteria. Gelijkwaardige antwoorden kunnen ook juist zijn.", "muted"),
+          node("h3", "Voorbeeld: gedeeltelijk juist"),
+          node("pre", examples.partial, "review-answer"),
+          node("p", examples.partialWhy),
+          node("h3", "Voorbeeld: volledig uitgewerkt"),
+          node("pre", examples.full, "review-answer"),
+          node("p", examples.fullWhy)
+        );
+      } else {
+        model.append(node("p", "Voor deze vraag zijn nog geen ijkvoorbeelden beschikbaar.", "muted"));
+        console.error("Ontbrekende beoordelingsvoorbeelden:", current.level, question.id);
+      }
     }
     item.append(model);
     if (question.type !== "theory") {
