@@ -101,10 +101,10 @@
       <label for="language">Taal / Language</label><select id="language"><option value="nl">Nederlands</option><option value="en">English</option></select>
       <p class="muted">De taal wordt bij het starten opgeslagen en bij hervatten hersteld.</p>
       <label for="candidate">Kandidaatcode</label><input id="candidate" type="text" maxlength="80" placeholder="Bijvoorbeeld K-2026-014 (geen naam nodig)" autocomplete="off">
-      <p class="muted" style="margin-top:12px">Eén assessment · 17 vragen · 100 punten · richttijd 60 minuten</p>
+      <p class="muted" style="margin-top:12px">Eén assessment · 25 vragen · 128 punten · richttijd 60 minuten</p>
       <button class="primary" id="start-button">Start assessment</button>
       <details><summary>Werkwijze en spelregels</summary>
-        <p>Iedereen krijgt dezelfde mix van basis- en verdiepende vragen: 9 meerkeuzevragen (20 punten), 4 code-opgaven (40 punten) en 4 open vragen (40 punten). Theorievragen zijn 2 of 3 punten per vraag waard. Totaal: 100 punten. De richttijd is 60 minuten, geen automatische deadline. Verdeel de tijd bijvoorbeeld over 15 minuten theorie, 25 minuten code en 20 minuten open vragen.</p>
+        <p>Iedereen krijgt dezelfde mix van basis- en verdiepende vragen: 13 meerkeuzevragen (28 punten), 8 code-opgaven (60 punten) en 4 open vragen (40 punten). Totaal: 128 punten. De richttijd blijft 60 minuten, zonder automatische deadline. Verdeel de tijd bijvoorbeeld over 15 minuten theorie, 25 minuten code en 20 minuten open vragen.</p>
         <p>Gebruik van Microsoft Learn en taalreferenties is toegestaan; generatieve AI en hulp van anderen niet, tenzij de beoordelaar vooraf voor alle kandidaten dezelfde afwijkende afspraken maakt. Geef aannames expliciet aan. Pseudocode mag waar gevraagd. Code wordt niet uitgevoerd of automatisch gecompileerd.</p>
         <p>Theorie wordt automatisch nagekeken. Code en open antwoorden beoordeelt een mens met vaste criteria en een vervolginterview. De beoordelaar bepaalt zelf een voorlopige niveau-indicatie; er is geen automatische aanname- of afwijzingsbeslissing. Deze toets is niet gevalideerd en geen beleid van 9altitudes.</p>
         <p><strong>Privacy en grenzen:</strong> antwoorden blijven in de browseropslag op deze computer. Exportbestanden bevatten antwoorden en feedback. Er is geen account, toegangsbeveiliging, proctoring of veilige scheiding tussen kandidaat en beoordelaar. Antwoordmodellen staan in de pagina en zijn technisch in te zien. Alleen gebruiken voor begeleide afname; niet als onbeveiligde publieke toets verspreiden. Deel geen echte klantgegevens, tokens of persoonsgegevens.</p>
@@ -113,7 +113,7 @@
     <div class="card"><h2>Let op: publiek toegankelijke pagina</h2><p>Deze pagina heeft geen login of toegangsbeveiliging. Geïmporteerde dossiers en beoordelingen worden alleen in de browseropslag van dit apparaat bewaard, niet op GitHub. Iedereen met toegang tot hetzelfde browserprofiel kan ze bekijken. Gebruik dit niet op een gedeeld apparaat; voor vertrouwelijke toegang is een beveiligde backend nodig.</p></div>
     <div class="card"><h2>Eerdere afnames op deze computer</h2><div id="sessions"></div><button id="import-button">Importeer eerder geëxporteerd dossier</button><input id="import-file" type="file" accept=".json,application/json" hidden></div>
     <div class="card"><h2>Aansluiting op de vacature</h2>
-      <p>De opdrachten richten zich op C#/OOP, Dynamics 365 CE, Dataverse, Power Platform, plug-ins, API-integraties, OAuth, testen, code reviews, CI/CD, migratie en support. Azure en SQL zijn in de vacature een pré; de verdiepende Azure-vragen zijn hier bewust onderdeel van het medior-/seniorprofiel.</p>
+      <p>De opdrachten richten zich op C#/OOP, Dynamics 365 CE, Dataverse, Power Platform, plug-ins, API-integraties, OAuth, testen, code reviews, CI/CD, migratie en support. Azure-vragen over Functions, Logic Apps, API Management en Key Vault zijn verspreid over de toets.</p>
     </div>
   </section>
   <section id="candidate-view" hidden>
@@ -187,6 +187,7 @@ levels.combined = {
 const PREVIOUS_LEVEL = "combined-v3";
 const CODE_LEVEL = "combined-v4";
 const NEW_LEVEL = "combined-v5";
+const AZURE_LEVEL = "combined-v6";
 const revisedOpenQuestions = {
   j7: {
     title: "Dubbele contacten",
@@ -241,6 +242,42 @@ const shortCodeQuestions = [
   { ...written("m11", "code", "Dataverse", "Een veld uit Target lezen", "Maak ReadName af. Target is een Dataverse Entity. Geef \"Not provided\" terug als name niet in Target staat. Geef \"Empty\" terug als name aanwezig maar null, leeg of witruimte is. Geef anders de getrimde waarde terug. Noem twee testgevallen. Microsoft.Xrm.Sdk is beschikbaar.", 'static string ReadName(Entity target)\n{\n    // TODO\n}\n', ["Afwezig veld onderscheiden met Contains (3).", "Null en witruimte behandelen en geldige waarde trimmen (4).", "Twee relevante testgevallen met verwachte uitkomst (3)."], 'if (!target.Contains("name")) return "Not provided";\nvar name = target.GetAttributeValue<string>("name");\nreturn string.IsNullOrWhiteSpace(name) ? "Empty" : name.Trim();\nTests: ontbrekend → Not provided; name=" Ada " → Ada.'), points: 10 },
   { ...written("m12", "code", "C# / integratie", "Tijdelijke HTTP-fouten herkennen", "Maak IsRetryable af. Geef true voor HTTP-status 429 en voor statuscodes 500 tot en met 599; geef anders false. De aanroeper regelt het aantal retries en veilige herhaling. Noem twee testgevallen met de verwachte uitkomst.", 'static bool IsRetryable(int statusCode)\n{\n    // TODO\n}\n', ["429 correct herkennen (3).", "Het bereik 500 tot en met 599 correct afbakenen en andere codes uitsluiten (4).", "Twee relevante testgevallen met verwachte uitkomst (3)."], "return statusCode == 429 || (statusCode >= 500 && statusCode <= 599);\nTests: 429 → true; 400 → false; controleer ook 500 en 599."), points: 10 }
 ];
+const azureTheoryQuestions = [
+  theory("j13", "Azure Functions", "Een queue-trigger gebruiken", "Een achtergrondtaak moet starten zodra een nieuw bericht in Azure Queue Storage staat. Welke aanpak past het best?", [
+    "Een timer-trigger die periodiek de queue controleert en zelf berichten verwerkt.",
+    "Een queue-trigger die de functie start zodra een nieuw bericht beschikbaar is.",
+    "Een HTTP-trigger die door de queue zelf wordt aangeroepen.",
+    "Een permanente lus in een functie die nooit wordt beëindigd."
+  ], 1, "Een queue-trigger koppelt de uitvoering aan nieuwe queueberichten. Houd rekening met herlevering en maak verwerking waar nodig idempotent."),
+  theory("m13", "Azure Logic Apps", "Tijdelijke connectorfouten", "Een Logic Apps-workflow krijgt tijdelijk HTTP 429 van een connector. Wat is een passende aanpak?", [
+    "De fout als succes markeren zodat de workflow verdergaat.",
+    "Retries uitschakelen en elke 429 als afgerond markeren zodat de workflow zonder fout doorgaat.",
+    "Een begrensd retrybeleid gebruiken en blijvend mislukte runs zichtbaar monitoren.",
+    "De workflow uitschakelen zodra een connector één keer faalt."
+  ], 2, "Gebruik een passend, begrensd retrybeleid voor tijdelijke fouten en bewaak run history en blijvend mislukte runs. Bevestig dat eventuele connectorbeperkingen worden gerespecteerd."),
+  theory("s13", "Azure API Management", "API-aanroepen beveiligen", "Een API achter API Management accepteert alleen toegangstokens voor de juiste API. Waar hoort de tokenvalidatie thuis?", [
+    "In een policy die handtekening, issuer en audience vóór doorsturen valideert.",
+    "Een subscription key als identiteitsbewijs controleren en daarna aannemen dat elk Bearer-token voor deze API bedoeld is.",
+    "Alleen in de portal; backend-aanroepen slaan API Management over.",
+    "In een policy die elk Bearer-token doorstuurt zonder het te controleren."
+  ], 0, "Een validate-jwt-policy kan een bearer-token controleren vóór doorsturen. Configureer de vertrouwde issuer en audience passend bij de API; een subscription key vervangt geen tokenvalidatie."),
+  theory("s14", "Azure Key Vault", "Een secret ophalen", "Een Azure Function moet een secret uit Key Vault lezen. Welke aanpak vermijdt een vast opgeslagen client secret?", [
+    "Een client secret permanent in app-instellingen opslaan, zodat de code geen token hoeft te beheren of te vernieuwen.",
+    "De secret als tekst in Application Insights opnemen voor diagnose.",
+    "Een gebruikersaccount en permanent refresh token in app-instellingen bewaren.",
+    "Managed identity gebruiken en die alleen de benodigde Key Vault-toegang geven."
+  ], 3, "Managed identity voorkomt een opgeslagen applicatiecredential; geef de identity alleen benodigde data-plane rechten en houd secretwaarden uit logs."),
+].map(question => ({ ...question, points: 2 }));
+const azureCodeQuestions = [
+  { ...written("j14", "code", "Azure Functions / C#", "Een HTTP-functie veilig antwoorden", "Vul de kern van een .NET isolated HTTP-trigger aan. De request bevat een al uitgelezen nullable orderId. Geef 400 terug als die null, leeg of witruimte is; anders 200 met de getrimde waarde. Gebruik de gegeven response-API. Noem twee testgevallen.", 'using System.Net;\n\nstatic async Task<HttpResponseData> RespondAsync(\n    HttpRequestData req, string? orderId)\n{\n    var response = req.CreateResponse();\n    // TODO: statuscode en response body\n    return response;\n}\n', ["Null, leegte en witruimte afwijzen; geldige waarde trimmen (2).", "Juiste 400/200 status en passende body teruggeven (2).", "Twee testgevallen met verwachte uitkomst noemen (1)."], 'var valid = !string.IsNullOrWhiteSpace(orderId);\nresponse.StatusCode = valid ? HttpStatusCode.OK : HttpStatusCode.BadRequest;\nawait response.WriteStringAsync(valid ? orderId!.Trim() : "orderId is required");\nTests: " A-17 " → 200 en "A-17"; " " → 400.'),
+    points: 5 },
+  { ...written("m14", "code", "Azure Logic Apps / expressions", "Een e-mailadres normaliseren", "Schrijf de Logic Apps-expressie voor triggerBody()?['email']. Geef 'missing' terug als het veld ontbreekt, null, leeg of witruimte is. Geef anders het getrimde e-mailadres in kleine letters terug. Noem twee testgevallen.", "", ["De Logic Apps-functie if gebruiken met een lege-waardetest na trimmen (2).", "Geldig e-mailadres trimmen en naar kleine letters omzetten (2).", "Twee testgevallen met verwachte uitkomst noemen (1)."], "@if(empty(trim(coalesce(triggerBody()?['email'], ''))), 'missing', toLower(trim(triggerBody()?['email'])))\nTests: ' ADA@EXAMPLE.COM ' → 'ada@example.com'; ontbrekend of ' ' → 'missing'."),
+    points: 5 },
+  { ...written("s15", "code", "Azure API Management / policy", "Een JWT voor de API controleren", "Vul de ontbrekende waarden in deze APIM-inboundpolicy in. Accepteer alleen tokens van de opgegeven tenant voor audience api://orders-api en vereis het Bearer-schema. Noem twee afwijzingstests.", '<inbound>\n  <base />\n  <validate-jwt header-name="Authorization" require-scheme="Bearer"\n                failed-validation-httpcode="401">\n    <openid-config url="https://login.microsoftonline.com/TENANT/v2.0/.well-known/openid-configuration" />\n    <audiences><audience>TODO</audience></audiences>\n  </validate-jwt>\n</inbound>\n', ["Juiste audience api://orders-api instellen (2).", "Issuer/tenant en Bearer-tokenvalidatie behouden; geen token doorlaten zonder validatie (2).", "Twee passende afwijzingstests noemen, zoals verkeerde audience en verlopen token (1)."], 'Vervang TENANT door de vertrouwde tenant-ID en TODO door api://orders-api. De policy controleert de handtekening via de OIDC-configuratie, issuer, audience en Bearer-scheme vóór de backend.\nTests: verlopen token → 401; geldig token voor een andere audience → 401.'),
+    points: 5 },
+  { ...written("s16", "code", "Azure Key Vault / C#", "Een secret met managed identity lezen", "Maak ReadSecretAsync af met de gegeven Key Vault SDK-client. Valideer secretName, geef het opgehaalde secret terug en laat SDK-fouten en cancellation doorstromen. Schrijf de secret niet naar logs. Noem twee tests. Microsoft.Extensions.Azure en Azure.Security.KeyVault.Secrets zijn beschikbaar.", 'static async Task<string> ReadSecretAsync(\n    SecretClient client, string? secretName, CancellationToken ct)\n{\n    // TODO\n}\n', ["Ongeldige/null/lege naam expliciet afwijzen (1).", "GetSecretAsync met cancellation-token gebruiken en waarde teruggeven (2).", "SDK-fouten/cancellation niet inslikken en secret niet loggen (1).", "Twee passende tests noemen (1)."], 'if (string.IsNullOrWhiteSpace(secretName))\n    throw new ArgumentException("A secret name is required.", nameof(secretName));\nvar result = await client.GetSecretAsync(secretName, cancellationToken: ct);\nreturn result.Value.Value;\nTests: geldige naam → opgehaalde waarde; lege naam → ArgumentException zonder SDK-call. Test ook dat cancellation en SDK-fouten doorstromen. Injecteer een SecretClient die met DefaultAzureCredential is geconfigureerd; log de secretwaarde niet.'),
+    points: 5 }
+];
 levels[CODE_LEVEL] = {
   title: "Gezamenlijk assessment", time: 60,
   questions: [
@@ -274,12 +311,30 @@ Object.assign(englishQuestions, {
   s1: { domain: "Distributed systems", title: "Exactly-once: what is guaranteed?", prompt: "A queue consumer writes to Dataverse and then acknowledges the message. The worker crashes between these steps. Which statement is correct?", choices: ["The broker records the Dataverse write and skips all redelivery.", "A crash may cause redelivery; make the effect idempotent.", "A longer lock prevents a second database write, even after a crash.", "An HTTP 200 from Dataverse automatically acknowledges the queue, even after a crash."] },
   s3: { domain: "Identity / security", title: "Authentication and authorization", prompt: "An integration uses workload identity without a stored secret. What is still required for Dataverse?", choices: ["An app without a stored secret automatically gets limited Dataverse permissions.", "Give the workload System Administrator to prevent access issues.", "An app user with limited roles and a supported authentication route.", "Store a personal refresh token in a private repository."] }
 });
+levels[AZURE_LEVEL] = {
+  title: "Gezamenlijk assessment", time: 60,
+  questions: [
+    ...levels[NEW_LEVEL].questions,
+    ...azureTheoryQuestions,
+    ...azureCodeQuestions
+  ]
+};
+Object.assign(englishQuestions, {
+  j13: { domain: "Azure Functions", title: "Use a queue trigger", prompt: "A background task should start whenever a new message arrives in Azure Queue Storage. Which approach fits best?", choices: ["A timer trigger that periodically checks the queue and processes messages itself.", "A queue trigger that starts the function when a new message is available.", "An HTTP trigger called directly by the queue.", "A permanent loop in a function that never terminates."] },
+  m13: { domain: "Azure Logic Apps", title: "Temporary connector failures", prompt: "A Logic Apps workflow gets a temporary HTTP 429 from a connector. What is an appropriate approach?", choices: ["Mark the failure as success so the workflow can continue.", "Disable retries and ignore each 429 so the workflow continues without reporting failure.", "Use a suitable bounded retry policy and monitor permanently failed runs.", "Disable the workflow as soon as a connector fails once."] },
+  s13: { domain: "Azure API Management", title: "Secure API requests", prompt: "An API behind API Management should accept only access tokens for the correct API. Where should token validation happen?", choices: ["In a policy that validates signature, issuer and audience before forwarding.", "Check a subscription key as proof of the caller's identity, then assume every Bearer token is intended for this API.", "Only in the portal; backend calls bypass API Management.", "In a policy that forwards every Bearer token without checking it."] },
+  s14: { domain: "Azure Key Vault", title: "Read a secret", prompt: "An Azure Function needs to read a secret from Key Vault. Which approach avoids a stored client secret?", choices: ["Store a client secret permanently in app settings so the code does not need to manage or renew a token.", "Write the secret as text to Application Insights for diagnosis.", "Store a user account and permanent refresh token in app settings.", "Use managed identity and grant it only the required Key Vault access."] },
+  j14: { domain: "Azure Functions / C#", title: "Return a safe HTTP response", prompt: "Complete the core of a .NET isolated HTTP trigger. The request has an already-read nullable orderId. Return 400 if it is null, empty or whitespace; otherwise return 200 with the trimmed value. Use the given response API. Give two test cases.", starter: 'using System.Net;\n\nstatic async Task<HttpResponseData> RespondAsync(\n    HttpRequestData req, string? orderId)\n{\n    var response = req.CreateResponse();\n    // TODO: set status code and response body\n    return response;\n}\n' },
+  m14: { domain: "Azure Logic Apps / expressions", title: "Normalize an email address", prompt: "Write the Logic Apps expression for triggerBody()?['email']. Return 'missing' if the field is missing, null, empty or whitespace. Otherwise return the trimmed email address in lowercase. Give two test cases." },
+  s15: { domain: "Azure API Management / policy", title: "Validate a JWT for the API", prompt: "Fill in the missing values in this APIM inbound policy. Accept only tokens from the specified tenant for audience api://orders-api and require the Bearer scheme. Give two rejection tests.", starter: '<inbound>\n  <base />\n  <validate-jwt header-name="Authorization" require-scheme="Bearer"\n                failed-validation-httpcode="401">\n    <openid-config url="https://login.microsoftonline.com/TENANT/v2.0/.well-known/openid-configuration" />\n    <audiences><audience>TODO</audience></audiences>\n  </validate-jwt>\n</inbound>\n' },
+  s16: { domain: "Azure Key Vault / C#", title: "Read a secret with managed identity", prompt: "Complete ReadSecretAsync with the given Key Vault SDK client. Validate secretName, return the retrieved secret and let SDK errors and cancellation propagate. Do not write the secret to logs. Give two tests. Microsoft.Extensions.Azure and Azure.Security.KeyVault.Secrets are available.", starter: 'static async Task<string> ReadSecretAsync(\n    SecretClient client, string? secretName, CancellationToken ct)\n{\n    // TODO\n}\n' }
+});
 function displayQuestion(question, attempt) {
-  return (attempt.level === NEW_LEVEL || attempt.level === CODE_LEVEL || attempt.level === PREVIOUS_LEVEL) && attempt.language === "en"
+  return ([NEW_LEVEL, CODE_LEVEL, PREVIOUS_LEVEL, AZURE_LEVEL].includes(attempt.level)) && attempt.language === "en"
     ? { ...question, ...englishQuestions[question.id] }
     : question;
 }
-function isCombined(attempt) { return attempt.level === "combined" || attempt.level === PREVIOUS_LEVEL || attempt.level === CODE_LEVEL || attempt.level === NEW_LEVEL; }
+function isCombined(attempt) { return ["combined", PREVIOUS_LEVEL, CODE_LEVEL, NEW_LEVEL, AZURE_LEVEL].includes(attempt.level); }
 // BEGIN EMBEDDED REVIEW EXAMPLES
 // Embedded in the manager page; examples are guidance, not automatic scores.
 const reviewExamples = {
@@ -414,6 +469,30 @@ const reviewExamples = {
     partialWhy: 'Er ontbreekt een afweging per scenario en aandacht voor transacties, beheer en kosten.',
     full: 'Ik vergelijk transactionele eisen, volume, latency, licenties en beheer. Directe invariant: synchrone servervalidatie; approval: flow bij passende licenties; hoogvolume ERP: queue en code of flow afhankelijk van metingen en beheer. Ik leg alternatieven en kosten vast in een ADR, toets risico’s met een PoC en spreek eigenaar, overdracht en herijkmoment af.',
     fullWhy: 'Het kader is op drie gevallen toegepast en governance en overdracht zijn benoemd.'
+  },
+  j14: {
+    partial: 'response.StatusCode = HttpStatusCode.OK;\nawait response.WriteStringAsync(orderId);',
+    partialWhy: 'Een geldige invoer werkt, maar ongeldige invoer wordt niet afgewezen en geldige waarden worden niet getrimd.',
+    full: 'var valid = !string.IsNullOrWhiteSpace(orderId);\nresponse.StatusCode = valid ? HttpStatusCode.OK : HttpStatusCode.BadRequest;\nawait response.WriteStringAsync(valid ? orderId!.Trim() : "orderId is required");\nreturn response;\nTests: " A-17 " → 200 en "A-17"; " " → 400.',
+    fullWhy: 'De null-/witruimtegrens, statuscodes, uitvoer en testuitkomsten zijn concreet.'
+  },
+  m14: {
+    partial: "@toLower(triggerBody()?['email'])",
+    partialWhy: 'De normale waarde wordt omgezet, maar ontbrekende of lege invoer faalt en omringende spaties blijven staan.',
+    full: "@if(empty(trim(coalesce(triggerBody()?['email'], ''))), 'missing', toLower(trim(triggerBody()?['email'])))\nTests: ' ADA@EXAMPLE.COM ' → 'ada@example.com'; ontbrekend of ' ' → 'missing'.",
+    fullWhy: 'De expressie behandelt lege invoer en normaliseert geldige waarden.'
+  },
+  s15: {
+    partial: '<audiences><audience>orders-api</audience></audiences>',
+    partialWhy: 'De audience is niet de afgesproken URI api://orders-api en zonder juiste audience wordt een ander token niet betrouwbaar geweigerd.',
+    full: '<inbound>\n  <base />\n  <validate-jwt header-name="Authorization" require-scheme="Bearer"\n                failed-validation-httpcode="401">\n    <openid-config url="https://login.microsoftonline.com/TENANT/v2.0/.well-known/openid-configuration" />\n    <audiences><audience>api://orders-api</audience></audiences>\n  </validate-jwt>\n</inbound>\nTests: verlopen token → 401; geldig token voor andere audience → 401.',
+    fullWhy: 'Tenant, Bearer-schema en exacte audience worden gevalideerd vóór de backend.'
+  },
+  s16: {
+    partial: 'return (await client.GetSecretAsync(secretName)).Value.Value;',
+    partialWhy: 'Een geldige naam werkt, maar inputvalidatie en cancellation ontbreken.',
+    full: 'if (string.IsNullOrWhiteSpace(secretName))\n    throw new ArgumentException("A secret name is required.", nameof(secretName));\nvar result = await client.GetSecretAsync(secretName, cancellationToken: ct);\nreturn result.Value.Value;\nTests: geldige naam → opgehaalde waarde; lege naam → ArgumentException zonder SDK-call. Test dat cancellation en SDK-fouten doorstromen. Configureer SecretClient met DefaultAzureCredential; log de secretwaarde niet.',
+    fullWhy: 'Input, cancellation, foutpropagatie en geheimhouding zijn meegenomen.'
   }
 };
 const revisedReviewExamples = {
@@ -443,7 +522,7 @@ const revisedReviewExamples = {
   }
 };
 function examplesFor(attempt, question) {
-  const revised = [PREVIOUS_LEVEL, CODE_LEVEL, NEW_LEVEL].includes(attempt.level);
+  const revised = [PREVIOUS_LEVEL, CODE_LEVEL, NEW_LEVEL, AZURE_LEVEL].includes(attempt.level);
   return (revised && revisedReviewExamples[question.id]) || reviewExamples[question.id];
 }
 // END EMBEDDED REVIEW EXAMPLES
@@ -627,8 +706,11 @@ function totals() {
 }
 function scoreSummary() {
   const score = totals();
-  const manualCount = levels[current.level].questions.filter(q => q.type !== "theory").length;
-  $("score-summary").textContent = score.complete ? `${score.total} / 100` : `${score.theoryScore} / 20 theorie`;
+  const allQuestions = levels[current.level].questions;
+  const manualCount = allQuestions.filter(q => q.type !== "theory").length;
+  const maxScore = allQuestions.reduce((sum, question) => sum + question.points, 0);
+  const theoryMaximum = allQuestions.filter(q => q.type === "theory").reduce((sum, question) => sum + question.points, 0);
+  $("score-summary").textContent = score.complete ? `${score.total} / ${maxScore}` : `${score.theoryScore} / ${theoryMaximum} theorie`;
   $("score-detail").textContent = isCombined(current)
     ? `${score.graded} van ${manualCount} handmatige beoordelingen ingevuld. Punten bepalen niet automatisch het niveau.`
     : score.complete
@@ -756,7 +838,7 @@ function renderReview() {
 $("start-button").onclick = () => {
   const candidate = $("candidate").value.trim();
   if (!candidate) { message("Vul eerst een kandidaatcode in, zonder persoonsgegevens."); $("candidate").focus(); return; }
-  current = { id: crypto.randomUUID(), bankVersion: BANK_VERSION, candidate, level: NEW_LEVEL, language: uiLanguage, status: "draft", startedAt: new Date().toISOString(), submittedAt: null, answers: {}, grades: {} };
+  current = { id: crypto.randomUUID(), bankVersion: BANK_VERSION, candidate, level: AZURE_LEVEL, language: uiLanguage, status: "draft", startedAt: new Date().toISOString(), submittedAt: null, answers: {}, grades: {} };
   attempts.push(current); index = 0; persist(); if (storageAvailable && !loadFailed) message(""); renderCandidate();
 };
 $("previous").onclick = () => { if (index > 0) { index--; renderCandidate(); } };
