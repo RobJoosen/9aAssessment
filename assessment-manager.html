@@ -96,16 +96,15 @@
       <p class="muted">Ontdek het assessment voor Technical Consultants bij 9altitudes. Van solide basiskennis tot integratiearchitectuur en technisch leiderschap.</p>
       <div class="hero-meta"><span>Dynamics 365 CE</span><span>.NET / C# / Azure</span><span>Junior · Medior · Senior</span></div>
     </div>
-    <div class="grid" id="levels"></div>
     <div class="card">
-      <h2>Start een nieuwe afname</h2>
+      <h2>Start het assessment</h2>
       <label for="candidate">Kandidaatcode</label><input id="candidate" type="text" maxlength="80" placeholder="Bijvoorbeeld K-2026-014 (geen naam nodig)" autocomplete="off">
-      <p class="muted" id="selection" style="margin-top:12px"></p>
+      <p class="muted" style="margin-top:12px">Eén assessment · 10 vragen · 100 punten · richttijd 60 minuten</p>
       <button class="primary" id="start-button">Start assessment</button>
       <details><summary>Werkwijze en spelregels</summary>
-        <p>Per niveau: 4 meerkeuzevragen (20 punten), 2 code-opgaven (40 punten) en 4 open vragen (40 punten). Totaal: 100 punten. De tijd is een richtlijn, geen automatische deadline.</p>
+        <p>Iedereen krijgt dezelfde mix van basis- en verdiepende vragen: 4 meerkeuzevragen (20 punten), 2 code-opgaven (40 punten) en 4 open vragen (40 punten). Totaal: 100 punten. De richttijd is 60 minuten, geen automatische deadline. Verdeel de tijd bijvoorbeeld over 8 minuten theorie, 24 minuten code en 28 minuten open vragen.</p>
         <p>Gebruik van Microsoft Learn en taalreferenties is toegestaan; generatieve AI en hulp van anderen niet, tenzij de beoordelaar vooraf voor alle kandidaten dezelfde afwijkende afspraken maakt. Geef aannames expliciet aan. Pseudocode mag waar gevraagd. Code wordt niet uitgevoerd of automatisch gecompileerd.</p>
-        <p>Theorie wordt automatisch nagekeken. Code en open antwoorden beoordeelt een mens met vaste criteria en een vervolginterview. Er is geen automatische aanname- of afwijzingsbeslissing. De niveau-indeling en score-indicatie zijn een eigen voorstel, geen gevalideerde selectietest of beleid van 9altitudes.</p>
+        <p>Theorie wordt automatisch nagekeken. Code en open antwoorden beoordeelt een mens met vaste criteria en een vervolginterview. De beoordelaar bepaalt zelf een voorlopige niveau-indicatie; er is geen automatische aanname- of afwijzingsbeslissing. Deze toets is niet gevalideerd en geen beleid van 9altitudes.</p>
         <p><strong>Privacy en grenzen:</strong> antwoorden blijven in de browseropslag op deze computer. Exportbestanden bevatten antwoorden en feedback. Er is geen account, toegangsbeveiliging, proctoring of veilige scheiding tussen kandidaat en beoordelaar. Antwoordmodellen staan in de pagina en zijn technisch in te zien. Alleen gebruiken voor begeleide afname; niet als onbeveiligde publieke toets verspreiden. Deel geen echte klantgegevens, tokens of persoonsgegevens.</p>
       </details>
     </div>
@@ -172,10 +171,19 @@ const levels = {
     written("s10", "open", "Consultancy / besluitvorming", "Een architectuurkeuze verdedigen", "Een klant wil voor elk proces maatwerk in C#. Een functioneel consultant wil alles in Power Automate. Stel een besliskader op en pas het toe op directe transactievalidering, een goedkeuringsflow en een hoogvolume ERP-koppeling. Bespreek kosten, beheer, grenzen en overdracht.", "", ["Criteria: transactionele eis, complexiteit, volume/latency en licenties (3).", "Drie keuzes met aantoonbare trade-offs, geen dogma (4).", "ADR, PoC/meting, ownership, overdracht en herijkmoment (3)."], "Validatie in sync serverpipeline als invariant; approval via passende low-code workflow; integratie via flow of code/queue afhankelijk van meetbare eisen en beperkingen. Bereken licentie/requestkosten, beheer/skillset, retries, deployment en monitoring. Leg argumenten, alternatieven en risicovalidatie vast met klant en functioneel consultant; plan herbeoordeling.")
   ]}
 };
+levels.combined = {
+  title: "Gezamenlijk assessment", time: 60,
+  questions: [
+    levels.junior.questions[0], levels.junior.questions[3],
+    levels.medior.questions[1], levels.senior.questions[3],
+    levels.junior.questions[5], levels.medior.questions[5],
+    levels.junior.questions[6], levels.medior.questions[6],
+    levels.senior.questions[6], levels.senior.questions[7]
+  ]
+};
 const STORAGE_KEY = "talentlab.d365ce.v1";
 let attempts = [];
 let current = null;
-let selectedLevel = "junior";
 let index = 0;
 let storageAvailable = true;
 const message = text => { $("message").textContent = text; };
@@ -185,7 +193,7 @@ const BANK_V1_ANSWER_INDEX_MAP = {
   senior: { s1: [0, 2, 1, 3], s2: [1, 0, 2, 3], s3: [0, 2, 1, 3], s4: [0, 3, 1, 2] }
 };
 function migrateBankV1(a) {
-  if (!a || typeof a !== "object" || a.bankVersion !== 1 || !Object.hasOwn(levels, a.level) ||
+  if (!a || typeof a !== "object" || a.bankVersion !== 1 || !Object.hasOwn(BANK_V1_ANSWER_INDEX_MAP, a.level) ||
       !a.answers || typeof a.answers !== "object" || Array.isArray(a.answers)) return a;
   const answers = { ...a.answers };
   for (const [questionId, indexMap] of Object.entries(BANK_V1_ANSWER_INDEX_MAP[a.level])) {
@@ -213,11 +221,19 @@ function validateAttempt(a) {
     const grade = a.grades[question.id];
     if (grade !== undefined && (question.type === "theory" || !grade || !Number.isInteger(grade.score) || grade.score < 0 || grade.score > question.points || typeof grade.feedback !== "string" || grade.feedback.length > 10000)) throw new Error("Ongeldige beoordeling in dossier.");
   }
+  if (a.indication !== undefined && (a.level !== "combined" || !a.indication ||
+      typeof a.indication !== "object" || Array.isArray(a.indication) ||
+      !["junior", "medior", "senior", "insufficient"].includes(a.indication.level) ||
+      typeof a.indication.evidence !== "string" || !a.indication.evidence.trim() ||
+      a.indication.evidence.length > 10000 || typeof a.indication.stale !== "boolean")) {
+    throw new Error("Ongeldige niveau-indicatie in dossier.");
+  }
   return {
     id: a.id, bankVersion: BANK_VERSION, level: a.level, candidate: a.candidate,
     status: a.status, startedAt: a.startedAt, submittedAt: a.status === "submitted" ? a.submittedAt : null,
     answers: Object.fromEntries(levels[a.level].questions.filter(q => a.answers[q.id] !== undefined).map(q => [q.id, a.answers[q.id]])),
-    grades: Object.fromEntries(levels[a.level].questions.filter(q => q.type !== "theory" && a.grades[q.id] !== undefined).map(q => [q.id, { score: a.grades[q.id].score, feedback: a.grades[q.id].feedback }]))
+    grades: Object.fromEntries(levels[a.level].questions.filter(q => q.type !== "theory" && a.grades[q.id] !== undefined).map(q => [q.id, { score: a.grades[q.id].score, feedback: a.grades[q.id].feedback }])),
+    ...(a.indication ? { indication: { level: a.indication.level, evidence: a.indication.evidence, stale: a.indication.stale } } : {})
   };
 }
 try {
@@ -240,20 +256,6 @@ function show(view) {
   ["home", "candidate-view", "review-view"].forEach(id => $(id).hidden = id !== view);
   $("export-button").disabled = !current;
 }
-function selectLevel(level) {
-  selectedLevel = level;
-  $("selection").textContent = `${levels[level].title} · 10 vragen · 100 punten · circa ${levels[level].time} minuten`;
-  [...$("levels").children].forEach(button => button.setAttribute("aria-pressed", String(button.dataset.level === level)));
-}
-for (const [key, level] of Object.entries(levels)) {
-  const button = node("button", undefined, "level");
-  button.type = "button";
-  button.dataset.level = key;
-  button.append(node("span", `${level.time} MIN · 100 PUNTEN`, "eyebrow"), node("strong", level.title), node("p", level.subtitle), node("small", level.description));
-  button.onclick = () => selectLevel(key);
-  $("levels").append(button);
-}
-selectLevel("junior");
 function renderSessions() {
   $("sessions").replaceChildren();
   if (!attempts.length) $("sessions").append(node("p", "Nog geen afnames opgeslagen.", "muted"));
@@ -343,9 +345,29 @@ function totals() {
 function scoreSummary() {
   const score = totals();
   $("score-summary").textContent = score.complete ? `${score.total} / 100` : `${score.theoryScore} / 20 theorie`;
-  $("score-detail").textContent = score.complete
+  $("score-detail").textContent = current.level === "combined"
+    ? `${score.graded} van 6 handmatige beoordelingen ingevuld. Punten bepalen niet automatisch het niveau.`
+    : score.complete
     ? `${score.total >= 80 ? "Sterk bewijs op dit niveau" : score.total >= 60 ? "Gemengd bewijs: verdiep in het interview" : "Beperkt bewijs: bespreek hiaten en context"}. Indicatieve rubricering, geen selectieadvies. Bekijk domeinen, code en argumentatie afzonderlijk.`
     : `${score.graded} van 6 handmatige beoordelingen ingevuld. Nog geen totaaloordeel.`;
+  if (current.level !== "combined") return;
+  const questions = levels.combined.questions;
+  for (const [prefix, label] of [["j", "Basis"], ["m", "Zelfstandig toepassen"], ["s", "Verdieping"]]) {
+    const group = questions.filter(q => q.id.startsWith(prefix));
+    const answeredCount = group.filter(answered).length;
+    const manual = group.filter(q => q.type !== "theory");
+    const graded = manual.filter(q => current.grades[q.id] !== undefined).length;
+    const points = group.reduce((sum, q) => sum + (q.type === "theory" ? (current.answers[q.id] === q.correct ? q.points : 0) : (current.grades[q.id]?.score ?? 0)), 0);
+    const max = group.reduce((sum, q) => sum + q.points, 0);
+    $(`evidence-${prefix}`).textContent = `${label}: ${answeredCount}/${group.length} antwoorden · ${graded}/${manual.length} handmatig beoordeeld · ${points}/${max} punten tot nu toe`;
+  }
+  const missing = questions.filter(q => !answered(q)).length;
+  const indication = current.indication;
+  const labels = { junior: "Junior", medior: "Medior", senior: "Senior", insufficient: "Onvoldoende informatie" };
+  $("indication-status").textContent = !indication ? "Nog geen indicatie vastgelegd."
+    : indication.stale || (indication.level !== "insufficient" && (!score.complete || missing))
+      ? "Eerder vastgelegde indicatie moet opnieuw worden beoordeeld."
+      : `Voorlopige indicatie door beoordelaar: ${labels[indication.level]}.`;
 }
 function renderReview() {
   show("review-view");
@@ -360,9 +382,40 @@ function renderReview() {
   const rubric = node("div", undefined, "card");
   rubric.append(node("h2", "Eenduidig beoordelen"), node("p", "Scoor per criterium tot het genoemde maximum: 0 = ontbreekt/onjuist, circa de helft = gedeeltelijk juist zonder voldoende uitwerking, volledig = correct en concreet onderbouwd. Tel op tot het vraagmaximum; gebruik gehele punten. Accepteer gelijkwaardige oplossingen. Noteer bewijs en vervolgvragen, geen persoonskenmerken."));
   view.append(rubric);
+  if (current.level === "combined") {
+    const summary = node("div", undefined, "card");
+    summary.append(node("h2", "Voorlopige niveau-indicatie"), node("p", "Beoordeel eerst de antwoorden met de criteria hieronder. De drie groepen tonen bewijs op verschillende moeilijkheidsniveaus; ze vormen geen gevalideerde niveaumeting. Gebruik ook een vervolginterview en relevante werkervaring. Er is geen automatische niveau- of aannamebeslissing."));
+    for (const prefix of ["j", "m", "s"]) {
+      const line = node("p"); line.id = `evidence-${prefix}`; summary.append(line);
+    }
+    summary.append(node("p", "Richtlijnen voor jouw oordeel: junior = basis begrijpen en met begeleiding toepassen; medior = zelfstandig oplossingen en tests onderbouwen; senior = daarnaast systeemgrenzen, risico's, trade-offs en teamimpact concreet onderbouwen. Ontbrekende antwoorden zijn geen bewijs van een lager niveau."));
+    const status = node("p"); status.id = "indication-status"; status.setAttribute("role", "status"); summary.append(status);
+    const label = node("label", "Jouw voorlopige indicatie"); label.htmlFor = "indication-level";
+    const select = node("select"); select.id = "indication-level";
+    for (const [value, text] of [["", "Kies een indicatie"], ["insufficient", "Onvoldoende informatie"], ["junior", "Junior"], ["medior", "Medior"], ["senior", "Senior"]]) {
+      const option = node("option", text); option.value = value; select.append(option);
+    }
+    select.value = current.indication?.level || "";
+    const evidenceLabel = node("label", "Onderbouwing en vervolgvragen"); evidenceLabel.htmlFor = "indication-evidence";
+    const evidence = node("textarea"); evidence.id = "indication-evidence"; evidence.maxLength = 10000;
+    evidence.value = current.indication?.evidence || "";
+    const saveIndication = node("button", "Indicatie opslaan"); saveIndication.type = "button";
+    saveIndication.onclick = () => {
+      if (!select.value || !evidence.value.trim()) { message("Kies een indicatie en noteer de onderbouwing."); return; }
+      if (select.value !== "insufficient" && (!totals().complete || levels.combined.questions.some(q => !answered(q)))) {
+        message("Beantwoord en beoordeel eerst alle vragen, of kies Onvoldoende informatie."); return;
+      }
+      current.indication = { level: select.value, evidence: evidence.value.trim(), stale: false };
+      persist(); scoreSummary();
+      if (storageAvailable && !loadFailed) message("Voorlopige indicatie opgeslagen.");
+    };
+    summary.append(label, select, evidenceLabel, evidence, saveIndication);
+    view.append(summary);
+  }
   for (const [i, question] of level.questions.entries()) {
     const item = node("article", undefined, "card");
-    item.append(node("div", `${i + 1} · ${question.domain} · max. ${question.points}`, "eyebrow"), node("h2", question.title), node("p", question.prompt));
+    const category = current.level === "combined" ? ({ j: "Basis", m: "Zelfstandig toepassen", s: "Verdieping" })[question.id[0]] + " · " : "";
+    item.append(node("div", `${i + 1} · ${category}${question.domain} · max. ${question.points}`, "eyebrow"), node("h2", question.title), node("p", question.prompt));
     const answer = current.answers[question.id];
     item.append(node("h3", "Antwoord kandidaat"), node("pre", question.type === "theory" ? (question.choices[answer] ?? "Niet beantwoord") : (answer?.trim() || "Niet beantwoord"), "review-answer"));
     const model = node("details"); model.append(node("summary", "Antwoordmodel & beoordelingscriteria"));
@@ -383,12 +436,14 @@ function renderReview() {
       const stored = current.grades[question.id];
       grade.value = stored ? String(stored.score) : ""; feedback.value = stored?.feedback || "";
       const update = () => {
+        const previous = current.grades[question.id];
         if (grade.value === "") { delete current.grades[question.id]; }
         else {
           const value = Number(grade.value);
           if (!Number.isInteger(value) || value < 0 || value > question.points) { grade.setCustomValidity("Vul gehele punten binnen het maximum in."); grade.reportValidity(); return; }
           current.grades[question.id] = { score: value, feedback: feedback.value };
         }
+        if (current.indication && (previous?.score !== current.grades[question.id]?.score || previous?.feedback !== current.grades[question.id]?.feedback)) current.indication.stale = true;
         grade.setCustomValidity(""); persist(); scoreSummary();
       };
       grade.oninput = update; feedback.oninput = update;
@@ -401,7 +456,7 @@ function renderReview() {
 $("start-button").onclick = () => {
   const candidate = $("candidate").value.trim();
   if (!candidate) { message("Vul eerst een kandidaatcode in, zonder persoonsgegevens."); $("candidate").focus(); return; }
-  current = { id: crypto.randomUUID(), bankVersion: BANK_VERSION, candidate, level: selectedLevel, status: "draft", startedAt: new Date().toISOString(), submittedAt: null, answers: {}, grades: {} };
+  current = { id: crypto.randomUUID(), bankVersion: BANK_VERSION, candidate, level: "combined", status: "draft", startedAt: new Date().toISOString(), submittedAt: null, answers: {}, grades: {} };
   attempts.push(current); index = 0; persist(); if (storageAvailable && !loadFailed) message(""); renderCandidate();
 };
 $("previous").onclick = () => { if (index > 0) { index--; renderCandidate(); } };
