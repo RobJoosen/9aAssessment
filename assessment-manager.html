@@ -101,10 +101,10 @@
       <label for="language">Taal / Language</label><select id="language"><option value="nl">Nederlands</option><option value="en">English</option></select>
       <p class="muted">De taal wordt bij het starten opgeslagen en bij hervatten hersteld.</p>
       <label for="candidate">Kandidaatcode</label><input id="candidate" type="text" maxlength="80" placeholder="Bijvoorbeeld K-2026-014 (geen naam nodig)" autocomplete="off">
-      <p class="muted" style="margin-top:12px">Eén assessment · 12 vragen · 100 punten · richttijd 60 minuten</p>
+      <p class="muted" style="margin-top:12px">Eén assessment · 17 vragen · 100 punten · richttijd 60 minuten</p>
       <button class="primary" id="start-button">Start assessment</button>
       <details><summary>Werkwijze en spelregels</summary>
-        <p>Iedereen krijgt dezelfde mix van basis- en verdiepende vragen: 4 meerkeuzevragen (20 punten), 4 code-opgaven (40 punten) en 4 open vragen (40 punten). Totaal: 100 punten. De richttijd is 60 minuten, geen automatische deadline. Verdeel de tijd bijvoorbeeld over 8 minuten theorie, 28 minuten code en 24 minuten open vragen.</p>
+        <p>Iedereen krijgt dezelfde mix van basis- en verdiepende vragen: 9 meerkeuzevragen (20 punten), 4 code-opgaven (40 punten) en 4 open vragen (40 punten). Theorievragen zijn 2 of 3 punten per vraag waard. Totaal: 100 punten. De richttijd is 60 minuten, geen automatische deadline. Verdeel de tijd bijvoorbeeld over 15 minuten theorie, 25 minuten code en 20 minuten open vragen.</p>
         <p>Gebruik van Microsoft Learn en taalreferenties is toegestaan; generatieve AI en hulp van anderen niet, tenzij de beoordelaar vooraf voor alle kandidaten dezelfde afwijkende afspraken maakt. Geef aannames expliciet aan. Pseudocode mag waar gevraagd. Code wordt niet uitgevoerd of automatisch gecompileerd.</p>
         <p>Theorie wordt automatisch nagekeken. Code en open antwoorden beoordeelt een mens met vaste criteria en een vervolginterview. De beoordelaar bepaalt zelf een voorlopige niveau-indicatie; er is geen automatische aanname- of afwijzingsbeslissing. Deze toets is niet gevalideerd en geen beleid van 9altitudes.</p>
         <p><strong>Privacy en grenzen:</strong> antwoorden blijven in de browseropslag op deze computer. Exportbestanden bevatten antwoorden en feedback. Er is geen account, toegangsbeveiliging, proctoring of veilige scheiding tussen kandidaat en beoordelaar. Antwoordmodellen staan in de pagina en zijn technisch in te zien. Alleen gebruiken voor begeleide afname; niet als onbeveiligde publieke toets verspreiden. Deel geen echte klantgegevens, tokens of persoonsgegevens.</p>
@@ -185,7 +185,8 @@ levels.combined = {
 };
 // Embedded in both standalone pages; keep their question definitions identical.
 const PREVIOUS_LEVEL = "combined-v3";
-const NEW_LEVEL = "combined-v4";
+const CODE_LEVEL = "combined-v4";
+const NEW_LEVEL = "combined-v5";
 const revisedOpenQuestions = {
   j7: {
     title: "Dubbele contacten",
@@ -240,7 +241,7 @@ const shortCodeQuestions = [
   { ...written("m11", "code", "Dataverse", "Een veld uit Target lezen", "Maak ReadName af. Target is een Dataverse Entity. Geef \"Not provided\" terug als name niet in Target staat. Geef \"Empty\" terug als name aanwezig maar null, leeg of witruimte is. Geef anders de getrimde waarde terug. Noem twee testgevallen. Microsoft.Xrm.Sdk is beschikbaar.", 'static string ReadName(Entity target)\n{\n    // TODO\n}\n', ["Afwezig veld onderscheiden met Contains (3).", "Null en witruimte behandelen en geldige waarde trimmen (4).", "Twee relevante testgevallen met verwachte uitkomst (3)."], 'if (!target.Contains("name")) return "Not provided";\nvar name = target.GetAttributeValue<string>("name");\nreturn string.IsNullOrWhiteSpace(name) ? "Empty" : name.Trim();\nTests: ontbrekend → Not provided; name=" Ada " → Ada.'), points: 10 },
   { ...written("m12", "code", "C# / integratie", "Tijdelijke HTTP-fouten herkennen", "Maak IsRetryable af. Geef true voor HTTP-status 429 en voor statuscodes 500 tot en met 599; geef anders false. De aanroeper regelt het aantal retries en veilige herhaling. Noem twee testgevallen met de verwachte uitkomst.", 'static bool IsRetryable(int statusCode)\n{\n    // TODO\n}\n', ["429 correct herkennen (3).", "Het bereik 500 tot en met 599 correct afbakenen en andere codes uitsluiten (4).", "Twee relevante testgevallen met verwachte uitkomst (3)."], "return statusCode == 429 || (statusCode >= 500 && statusCode <= 599);\nTests: 429 → true; 400 → false; controleer ook 500 en 599."), points: 10 }
 ];
-levels[NEW_LEVEL] = {
+levels[CODE_LEVEL] = {
   title: "Gezamenlijk assessment", time: 60,
   questions: [
     ...levels[PREVIOUS_LEVEL].questions.slice(0, 4),
@@ -254,12 +255,31 @@ Object.assign(englishQuestions, {
   m11: { domain: "Dataverse", title: "Read a field from Target", prompt: 'Complete ReadName. Target is a Dataverse Entity. Return "Not provided" if name is absent from Target. Return "Empty" if name is present but null, empty or whitespace. Otherwise return the trimmed value. Give two test cases. Microsoft.Xrm.Sdk is available.' },
   m12: { domain: "C# / integration", title: "Recognize temporary HTTP errors", prompt: "Complete IsRetryable. Return true for HTTP status 429 and status codes 500 through 599 inclusive; return false otherwise. The caller handles the retry limit and safe replay. Give two test cases with their expected results." }
 });
+levels[NEW_LEVEL] = {
+  title: "Gezamenlijk assessment", time: 60,
+  questions: [
+    ...[
+      levels.junior.questions[0], levels.junior.questions[3],
+      levels.junior.questions[1], levels.junior.questions[2],
+      levels.medior.questions[1], levels.medior.questions[0],
+      levels.senior.questions[3], levels.senior.questions[0], levels.senior.questions[2]
+    ].map(question => ({ ...question, points: ["s4", "s1"].includes(question.id) ? 3 : 2 })),
+    ...levels[CODE_LEVEL].questions.slice(4)
+  ]
+};
+Object.assign(englishQuestions, {
+  j2: { domain: "Dataverse", title: "What is in Target?", prompt: "An Update plug-in receives an Entity as Target. What can you assume?", choices: ["All columns of the row are always sent with an Update.", "After processing, Target contains the complete row with all pipeline changes.", "Target is partial; a pre-image can contain the previous values.", "A missing column is null and may be saved as an empty value."] },
+  j3: { domain: "Power Platform", title: "Where should validation run?", prompt: "A business rule must be enforced for every supported write path, including API calls. What is the best choice?", choices: ["Use JavaScript on the form; direct API writes do not reach that rule.", "Use a cloud flow to correct invalid values after the transaction is saved.", "Hide the Save button whenever input does not satisfy the rule.", "Validate server-side on every write path, for example with a plug-in."] },
+  m1: { domain: "Dataverse pipeline", title: "Calculate a value before the write", prompt: "During Update, you want to calculate a value on the same row and save it in the same database operation. Which step generally fits best?", choices: ["A synchronous PostOperation plug-in that updates the account a second time.", "A form rule that calculates the value and sends it when saving.", "A Retrieve without changing Target or the database value.", "Synchronous PreOperation; modify Target before the write."] },
+  s1: { domain: "Distributed systems", title: "Exactly-once: what is guaranteed?", prompt: "A queue consumer writes to Dataverse and then acknowledges the message. The worker crashes between these steps. Which statement is correct?", choices: ["The broker records the Dataverse write and skips all redelivery.", "A crash may cause redelivery; make the effect idempotent.", "A longer lock prevents a second database write, even after a crash.", "An HTTP 200 from Dataverse automatically acknowledges the queue, even after a crash."] },
+  s3: { domain: "Identity / security", title: "Authentication and authorization", prompt: "An integration uses workload identity without a stored secret. What is still required for Dataverse?", choices: ["An app without a stored secret automatically gets limited Dataverse permissions.", "Give the workload System Administrator to prevent access issues.", "An app user with limited roles and a supported authentication route.", "Store a personal refresh token in a private repository."] }
+});
 function displayQuestion(question, attempt) {
-  return (attempt.level === NEW_LEVEL || attempt.level === PREVIOUS_LEVEL) && attempt.language === "en"
+  return (attempt.level === NEW_LEVEL || attempt.level === CODE_LEVEL || attempt.level === PREVIOUS_LEVEL) && attempt.language === "en"
     ? { ...question, ...englishQuestions[question.id] }
     : question;
 }
-function isCombined(attempt) { return attempt.level === "combined" || attempt.level === PREVIOUS_LEVEL || attempt.level === NEW_LEVEL; }
+function isCombined(attempt) { return attempt.level === "combined" || attempt.level === PREVIOUS_LEVEL || attempt.level === CODE_LEVEL || attempt.level === NEW_LEVEL; }
 
 const STORAGE_KEY = "talentlab.d365ce.v1";
 let attempts = [];
