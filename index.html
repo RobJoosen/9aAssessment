@@ -87,30 +87,32 @@
 </head>
 <body>
 <main class="shell">
-  <header><div><div class="brand"><span class="brand-symbol" aria-hidden="true">△</span><span class="brand-name">9altitudes</span></div><span class="brand-caption">Technisch assessment · kandidaatversie</span></div><div class="row"><button id="home-button">Overzicht</button><button id="export-button" disabled>Exporteer dossier</button><span class="pill">Kandidaat · tijdelijk in deze tab</span></div></header>
+  <header><div><div class="brand"><span class="brand-symbol" aria-hidden="true">△</span><span class="brand-name">9altitudes</span></div><span class="brand-caption" data-en="Technical assessment · candidate version">Technisch assessment · kandidaatversie</span></div><div class="row"><button id="home-button" data-en="Overview">Overzicht</button><button id="export-button" data-en="Export dossier" disabled>Exporteer dossier</button><span class="pill" data-en="Candidate · temporary in this tab">Kandidaat · tijdelijk in deze tab</span></div></header>
   <div id="message" class="status" role="status" aria-live="polite"></div>
   <section id="home">
     <div class="hero">
-      <div class="eyebrow">9altitudes · Jouw avontuur</div>
-      <h1>Jouw technische<br>assessment.</h1>
-      <p class="muted">Ontdek het assessment voor Technical Consultants bij 9altitudes. Van solide basiskennis tot integratiearchitectuur en technisch leiderschap.</p>
+      <div class="eyebrow" data-en="9altitudes · Your adventure">9altitudes · Jouw avontuur</div>
+      <h1 data-en="Your technical assessment.">Jouw technische assessment.</h1>
+      <p class="muted" data-en="Explore the assessment for Technical Consultants at 9altitudes, from foundational knowledge to integration architecture and technical leadership.">Ontdek het assessment voor Technical Consultants bij 9altitudes. Van solide basiskennis tot integratiearchitectuur en technisch leiderschap.</p>
       <div class="hero-meta"><span>Dynamics 365 CE</span><span>.NET / C# / Azure</span><span>Junior · Medior · Senior</span></div>
     </div>
     <div class="card">
-      <h2>Start het assessment</h2>
-      <label for="candidate">Kandidaatcode</label><input id="candidate" type="text" maxlength="80" placeholder="Bijvoorbeeld K-2026-014 (geen naam nodig)" autocomplete="off">
-      <p class="muted" style="margin-top:12px">Eén assessment · 10 vragen · 100 punten · richttijd 60 minuten</p>
-      <button class="primary" id="start-button">Start assessment</button>
-      <details><summary>Werkwijze en spelregels</summary>
-        <p>Iedereen krijgt dezelfde mix van basis- en verdiepende vragen: 4 meerkeuzevragen (20 punten), 2 code-opgaven (40 punten) en 4 open vragen (40 punten). Totaal: 100 punten. De richttijd is 60 minuten, geen automatische deadline. Verdeel de tijd bijvoorbeeld over 8 minuten theorie, 24 minuten code en 28 minuten open vragen.</p>
-        <p>Gebruik van Microsoft Learn en taalreferenties is toegestaan; generatieve AI en hulp van anderen niet, tenzij de beoordelaar vooraf voor alle kandidaten dezelfde afwijkende afspraken maakt. Geef aannames expliciet aan. Pseudocode mag waar gevraagd. Code wordt niet uitgevoerd of automatisch gecompileerd.</p>
-        <p>Theorie wordt automatisch nagekeken. Code en open antwoorden beoordeelt een mens met vaste criteria en een vervolginterview. De beoordelaar bepaalt zelf een voorlopige niveau-indicatie; er is geen automatische aanname- of afwijzingsbeslissing. Deze toets is niet gevalideerd en geen beleid van 9altitudes.</p>
-        <p><strong>Privacy en grenzen:</strong> antwoorden worden alleen tijdelijk in deze browsertab opgeslagen; ze zijn niet zichtbaar in het beoordelaarsoverzicht. Exporteer na afloop het dossier en lever het in via het afgesproken kanaal. Sluit de tab pas nadat je het bestand hebt opgeslagen. Er is geen account of technische toegangsbeveiliging en antwoordmodellen staan in de pagina. Deel geen echte klantgegevens, tokens of persoonsgegevens.</p>
+      <h2 data-en="Start the assessment">Start het assessment</h2>
+      <label for="language" data-en="Language">Taal</label><select id="language"><option value="nl">Nederlands</option><option value="en">English</option></select>
+      <p class="muted" data-en="The language is saved when you start and restored when you resume.">De taal wordt bij het starten opgeslagen en bij hervatten hersteld.</p>
+      <label for="candidate" data-en="Candidate code">Kandidaatcode</label><input id="candidate" type="text" maxlength="80" placeholder="Bijvoorbeeld K-2026-014 (geen naam nodig)" autocomplete="off">
+      <p class="muted" style="margin-top:12px" data-en="One assessment · 10 questions · 100 points · suggested time 60 minutes">Eén assessment · 10 vragen · 100 punten · richttijd 60 minuten</p>
+      <button class="primary" id="start-button" data-en="Start assessment">Start assessment</button>
+      <details><summary data-en="Instructions and rules">Werkwijze en spelregels</summary>
+        <p data-en="Everyone receives the same mix of foundational and advanced questions: 4 multiple-choice questions (20 points), 2 coding exercises (40 points) and 4 open questions (40 points). Total: 100 points. The suggested time is 60 minutes, not an automatic deadline. For example, allow 8 minutes for theory, 24 for code and 28 for open questions.">Iedereen krijgt dezelfde mix van basis- en verdiepende vragen: 4 meerkeuzevragen (20 punten), 2 code-opgaven (40 punten) en 4 open vragen (40 punten). Totaal: 100 punten. De richttijd is 60 minuten, geen automatische deadline. Verdeel de tijd bijvoorbeeld over 8 minuten theorie, 24 minuten code en 28 minuten open vragen.</p>
+        <p data-en="Microsoft Learn and language references are permitted; generative AI and help from others are not, unless the assessor makes the same alternative arrangements for all candidates beforehand. State your assumptions. Pseudocode is allowed where requested. Code is not executed or compiled automatically.">Gebruik van Microsoft Learn en taalreferenties is toegestaan; generatieve AI en hulp van anderen niet, tenzij de beoordelaar vooraf voor alle kandidaten dezelfde afwijkende afspraken maakt. Geef aannames expliciet aan. Pseudocode mag waar gevraagd. Code wordt niet uitgevoerd of automatisch gecompileerd.</p>
+        <p data-en="Theory is scored automatically. A person assesses code and open answers using consistent criteria and a follow-up interview. The assessor determines a provisional level indication; there is no automatic hiring or rejection decision. This assessment is not validated and is not 9altitudes policy.">Theorie wordt automatisch nagekeken. Code en open antwoorden beoordeelt een mens met vaste criteria en een vervolginterview. De beoordelaar bepaalt zelf een voorlopige niveau-indicatie; er is geen automatische aanname- of afwijzingsbeslissing. Deze toets is niet gevalideerd en geen beleid van 9altitudes.</p>
+        <p data-en="Privacy and limitations: answers are stored temporarily in this browser tab and are not automatically sent to the assessor. Export the dossier and submit it through the agreed channel. Save the file before closing this tab. There is no account or access control, and answer models are included in the page. Do not share real customer data, tokens or personal data.">Privacy en grenzen: antwoorden worden alleen tijdelijk in deze browsertab opgeslagen en niet automatisch naar de beoordelaar gestuurd. Exporteer na afloop het dossier en lever het in via het afgesproken kanaal. Sluit de tab pas nadat je het bestand hebt opgeslagen. Er is geen account of technische toegangsbeveiliging en antwoordmodellen staan in de pagina. Deel geen echte klantgegevens, tokens of persoonsgegevens.</p>
       </details>
     </div>
-    <div class="card"><h2>Dossier inleveren</h2><p>Na afronden download je via <strong>Exporteer dossier</strong> een JSON-bestand met je antwoorden. Stuur dit bestand via het kanaal dat de beoordelaar heeft afgesproken.</p></div>
-    <div class="card"><h2>Aansluiting op de vacature</h2>
-      <p>De opdrachten richten zich op C#/OOP, Dynamics 365 CE, Dataverse, Power Platform, plug-ins, API-integraties, OAuth, testen, code reviews, CI/CD, migratie en support. Azure en SQL zijn in de vacature een pré; de verdiepende Azure-vragen zijn hier bewust onderdeel van het medior-/seniorprofiel.</p>
+    <div class="card"><h2 data-en="Submit your dossier">Dossier inleveren</h2><p data-en="After completing the assessment, use Export dossier to download a JSON file with your answers. Send this file through the channel agreed with your assessor.">Na afronden download je via Exporteer dossier een JSON-bestand met je antwoorden. Stuur dit bestand via het kanaal dat de beoordelaar heeft afgesproken.</p></div>
+    <div class="card"><h2 data-en="Role relevance">Aansluiting op de vacature</h2>
+      <p data-en="The exercises cover C#/OOP, Dynamics 365 CE, Dataverse, Power Platform, plug-ins, API integrations, OAuth, testing, code reviews, CI/CD, migration and support. Azure and SQL are desirable skills in the vacancy; advanced Azure questions are deliberately included here.">De opdrachten richten zich op C#/OOP, Dynamics 365 CE, Dataverse, Power Platform, plug-ins, API-integraties, OAuth, testen, code reviews, CI/CD, migratie en support. Azure en SQL zijn in de vacature een pré; de verdiepende Azure-vragen zijn hier bewust onderdeel van het medior-/seniorprofiel.</p>
     </div>
   </section>
   <section id="candidate-view" hidden>
@@ -118,12 +120,12 @@
     <p class="muted" id="progress-label"></p><progress id="progress" max="10" value="0" aria-label="Aantal beantwoorde vragen"></progress>
     <div class="layout"><nav id="question-nav" aria-label="Vragen"></nav><div>
       <article class="card" id="question"></article>
-      <div class="actions"><button id="previous">Vorige</button><button id="next" class="primary">Volgende</button></div>
-      <div class="card"><h3>Klaar met het assessment?</h3><p class="muted">Controleer je antwoorden. Na het bevestigen zijn ze in de interface niet meer aanpasbaar.</p><div id="submit-check" hidden class="status"><p id="submit-warning"></p><button class="primary" id="confirm-submit">Definitief inleveren</button> <button id="cancel-submit">Nog controleren</button></div><button id="submit-button">Inleveren...</button></div>
+      <div class="actions"><button id="previous" data-en="Previous">Vorige</button><button id="next" class="primary" data-en="Next">Volgende</button></div>
+      <div class="card"><h3 data-en="Finished the assessment?">Klaar met het assessment?</h3><p class="muted" data-en="Check your answers. After confirmation they cannot be changed in the interface.">Controleer je antwoorden. Na het bevestigen zijn ze in de interface niet meer aanpasbaar.</p><div id="submit-check" hidden class="status"><p id="submit-warning"></p><button class="primary" id="confirm-submit" data-en="Submit assessment">Definitief inleveren</button> <button id="cancel-submit" data-en="Continue checking">Nog controleren</button></div><button id="submit-button" data-en="Submit...">Inleveren...</button></div>
     </div></div>
   </section>
   <section id="review-view" hidden></section>
-  <footer class="muted" style="font-size:12px;margin-top:25px">9altitudes · Zelfstandig concept voor begeleide beoordeling · Geen officiële 9altitudes-toets</footer>
+  <footer class="muted" style="font-size:12px;margin-top:25px" data-en="9altitudes · Independent concept for supervised assessment · Not an official 9altitudes assessment">9altitudes · Zelfstandig concept voor begeleide beoordeling · Geen officiële 9altitudes-toets</footer>
 </main>
 <script>
 "use strict";
@@ -180,11 +182,83 @@ levels.combined = {
     levels.senior.questions[6], levels.senior.questions[7]
   ]
 };
+// Embedded in both standalone pages; keep their question definitions identical.
+const NEW_LEVEL = "combined-v3";
+const revisedOpenQuestions = {
+  j7: {
+    title: "Dubbele contacten",
+    prompt: "Een klant wil dubbele contacten voorkomen. Noem twee vragen die je eerst aan de klant stelt. Beschrijf daarna één concrete regel om een dubbel contact te herkennen en hoe je die regel test.",
+    criteria: ["Twee relevante verduidelijkende vragen over definitie, scope of uitzonderingen (3).", "Een concrete en toetsbare herkenningsregel (4).", "Een test met een verwacht resultaat en aandacht voor uitzonderingen (3)."],
+    model: "Vraag bijvoorbeeld welke velden een contact uniek maken en of mensen een e-mailadres mogen delen. Spreek een regel af, bijvoorbeeld een unieke externe sleutel. Test met twee contacten met dezelfde sleutel en controleer of de afgesproken reactie volgt."
+  },
+  m7: {
+    title: "Een order controleren en doorsturen",
+    prompt: "Een order moet vóór het opslaan worden gecontroleerd. Na het opslaan moet een extern ERP-systeem worden bijgewerkt, maar dat systeem reageert soms traag. Waar voer je de controle uit? Hoe stuur je de wijziging door zonder de gebruiker te laten wachten? Wat gebeurt er als het doorsturen mislukt?",
+    criteria: ["Directe controle en externe verwerking van elkaar onderscheiden (3).", "Een betrouwbare asynchrone aanpak met aandacht voor opnieuw proberen en dubbel verwerken (4).", "Fout zichtbaar maken en de gekozen aanpak praktisch onderbouwen (3)."],
+    model: "Valideer de order server-side vóór het opslaan. Verwerk de ERP-koppeling daarna via een betrouwbare asynchrone route, bijvoorbeeld een queue met een herstelbare eventbron. Maak verwerking idempotent, probeer tijdelijke fouten begrensd opnieuw en maak blijvende fouten zichtbaar."
+  },
+  s7: {
+    title: "Een betrouwbare ERP-koppeling",
+    prompt: "Wijzigingen in Dynamics 365 CE moeten naar een ERP-systeem. Het ERP kan twee uur onbereikbaar zijn en een bericht kan meer dan één keer aankomen. Beschrijf hoe je wijzigingen bewaart tijdens de storing, dubbele verwerking voorkomt en na herstel controleert of alles is verwerkt.",
+    criteria: ["Aannames en gewenste verwerking na herstel concreet maken (2).", "Betrouwbare opslag of publicatie met herstelstrategie beschrijven (3).", "Dubbele verwerking voorkomen en mislukte berichten kunnen herhalen (3).", "Controle of monitoring op achterstand en ontbrekende wijzigingen (2)."],
+    model: "Gebruik een aantoonbaar betrouwbare eventbron en een duurzame queue met voldoende retentie. Verwerk een stabiele wijzigingssleutel idempotent en bewaar fouten voor herstel. Bewaak de achterstand, herhaal fouten gecontroleerd en vergelijk bron en doel om ontbrekende wijzigingen te vinden."
+  },
+  s8: {
+    title: "De kwaliteit van plug-ins verbeteren",
+    prompt: "Een team levert plug-ins op die vaak traag zijn en weinig tests hebben. Wat doe je eerst om de oorzaak te begrijpen? Noem twee concrete verbeteringen die het team samen kan invoeren en één manier om te meten of die helpen.",
+    criteria: ["Eerst oorzaken en bestaande problemen samen onderzoeken (2).", "Twee concrete verbeteringen, zoals tests of geautomatiseerde checks (3).", "Gedeelde verantwoordelijkheid en begeleiding van het team (3).", "Een passende, meetbare kwaliteits- of doorlooptijdindicator (2)."],
+    model: "Onderzoek samen traces, reviews en eerdere incidenten. Voeg bijvoorbeeld testfixtures en controles voor brede queries toe; laat teamleden samen reviews uitvoeren. Volg bijvoorbeeld het aantal relevante productiefouten en de doorlooptijd, met context."
+  }
+};
+levels[NEW_LEVEL] = {
+  title: "Gezamenlijk assessment", time: 60,
+  questions: levels.combined.questions.map(question => {
+    if (revisedOpenQuestions[question.id]) return { ...question, ...revisedOpenQuestions[question.id] };
+    if (question.type === "code") return { ...question, starter: question.starter
+      .replace("context / Target bewaken en name verwerken", "guard context / Target and process name")
+      .replace("Testgevallen", "Test cases") };
+    return question;
+  })
+};
+const englishQuestions = {
+  j1: { domain: "C# / OOP", title: "Interfaces in C#", prompt: "Why use an interface for a service called by a plug-in?", choices: ["To define a service contract that allows implementations to be replaced.", "To automatically start plug-ins on separate threads.", "To log service errors and retry them.", "To bypass the calling user's Dataverse permissions."] },
+  j4: { domain: "API / OAuth", title: "Managing secrets", prompt: "An Azure integration uses a client secret. Which approach is appropriate?", choices: ["Use a .env file and keep the secret value out of version control.", "Use Key Vault, least privilege and rotation; use managed identity where possible.", "Store an encrypted configuration file with its decryption key in the pipeline.", "Share the secret as a CI/CD variable with the entire development team."] },
+  m2: { domain: "Integration", title: "Throttling", prompt: "The Dataverse Web API returns HTTP 429 with Retry-After. What should you do?", choices: ["Ignore Retry-After and immediately retry the request in parallel.", "Treat the 429 as success and mark processing as complete.", "Follow Retry-After, limit parallelism and set a retry budget.", "Use a fixed short delay without following the server's hint."] },
+  s4: { domain: "ALM / recovery", title: "Rolling back a schema change", prompt: "A managed solution release removes components that contain data. Why is importing the old ZIP file not a complete rollback plan?", choices: ["Old solution files always lack a version that can be imported.", "Managed solutions prevent all forms of automated recovery.", "A CI/CD pipeline can automatically reverse every deleted data change.", "An old ZIP usually does not automatically restore deleted data or dependencies."] },
+  j6: { domain: "Dataverse plug-in", title: "Normalizing without an extra Update", prompt: "Complete the core of a synchronous PreOperation plug-in for an account Update. Trim name only when it is present in Target. If name is absent, leave it unchanged. If it is explicitly null or whitespace, reject it with InvalidPluginExecutionException. Write directly to Target; do not call service.Update. Microsoft.Xrm.Sdk is available. Add test scenarios." },
+  m6: { domain: "C# / Azure integration", title: "Idempotent processing", prompt: "A queue delivers OrderMessage at least once. Complete the handler using the given store interface. TryApplyAsync deduplicates and saves the order change in one database transaction; false means already processed. Explicitly reject permanent validation errors. Let temporary store errors propagate so the queue host can handle bounded retries and dead-lettering. Add tests. No real SDK is needed." },
+  j7: { domain: "Consulting", title: "Duplicate contacts", prompt: "A customer wants to prevent duplicate contacts. Name two questions you would ask the customer first. Then describe one concrete rule for recognizing a duplicate and how you would test it." },
+  m7: { domain: "Architecture", title: "Validating and forwarding an order", prompt: "An order must be validated before it is saved. After saving, an external ERP system must be updated, but it sometimes responds slowly. Where would you perform validation? How would you send the change without making the user wait? What happens if sending fails?" },
+  s7: { domain: "Architecture", title: "A reliable ERP integration", prompt: "Changes in Dynamics 365 CE must be sent to an ERP system. The ERP may be unavailable for two hours and a message may arrive more than once. Explain how you would preserve changes during the outage, prevent duplicate processing and check after recovery that everything was processed." },
+  s8: { domain: "Technical leadership", title: "Improving plug-in quality", prompt: "A team delivers plug-ins that are often slow and have few tests. What would you do first to understand the cause? Name two concrete improvements the team could introduce together and one way to measure whether they help." }
+};
+function displayQuestion(question, attempt) {
+  return attempt.level === NEW_LEVEL && attempt.language === "en"
+    ? { ...question, ...englishQuestions[question.id] }
+    : question;
+}
+function isCombined(attempt) { return attempt.level === "combined" || attempt.level === NEW_LEVEL; }
+
 const STORAGE_KEY = "9aassessment.candidate.session.v1";
 let attempts = [];
 let current = null;
 let index = 0;
 let storageAvailable = true;
+let uiLanguage = "nl";
+const tr = (nl, en) => uiLanguage === "en" ? en : nl;
+function applyLanguage(language) {
+  uiLanguage = language;
+  document.documentElement.lang = language;
+  for (const element of document.querySelectorAll("[data-en]")) {
+    if (element.dataset.nl === undefined) element.dataset.nl = element.textContent;
+    element.textContent = language === "en" ? element.dataset.en : element.dataset.nl;
+  }
+  $("language").value = language;
+  $("candidate").placeholder = tr("Bijvoorbeeld K-2026-014 (geen naam nodig)", "For example K-2026-014 (no name needed)");
+  $("progress").setAttribute("aria-label", tr("Aantal beantwoorde vragen", "Number of answered questions"));
+  $("question-nav").setAttribute("aria-label", tr("Vragen", "Questions"));
+}
+$("language").onchange = () => applyLanguage($("language").value);
 const message = text => { $("message").textContent = text; };
 const BANK_V1_ANSWER_INDEX_MAP = {
   junior: { j1: [1, 0, 2, 3], j2: [0, 2, 1, 3], j3: [0, 1, 3, 2], j4: [0, 3, 1, 2] },
@@ -203,7 +277,7 @@ function migrateBankV1(a) {
 }
 function save() {
   try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(attempts)); storageAvailable = true; }
-  catch (error) { storageAvailable = false; message("Opslaan in browseropslag is mislukt. Houd deze pagina open en exporteer het dossier om antwoorden te bewaren. " + error.message); }
+  catch (error) { storageAvailable = false; message(tr("Opslaan in browseropslag is mislukt. Houd deze pagina open en exporteer het dossier om antwoorden te bewaren. ", "Browser storage failed. Keep this page open and export the dossier to preserve your answers. ") + error.message); }
 }
 function validateAttempt(a) {
   a = migrateBankV1(a);
@@ -213,7 +287,8 @@ function validateAttempt(a) {
       !["draft", "submitted"].includes(a.status) || !Number.isFinite(Date.parse(a.startedAt)) ||
       (a.status === "submitted" && !Number.isFinite(Date.parse(a.submittedAt))) ||
       !a.answers || typeof a.answers !== "object" || Array.isArray(a.answers) ||
-      !a.grades || typeof a.grades !== "object" || Array.isArray(a.grades)) throw new Error("Onjuist of niet-ondersteund assessmentdossier.");
+      !a.grades || typeof a.grades !== "object" || Array.isArray(a.grades) ||
+      (a.language !== undefined && !["nl", "en"].includes(a.language))) throw new Error("Onjuist of niet-ondersteund assessmentdossier.");
   for (const question of levels[a.level].questions) {
     const answer = a.answers[question.id];
     if (answer !== undefined && (question.type === "theory" ? !Number.isInteger(answer) || answer < 0 || answer >= question.choices.length : typeof answer !== "string" || answer.length > 60000)) throw new Error("Ongeldig antwoord in dossier.");
@@ -221,7 +296,7 @@ function validateAttempt(a) {
     if (grade !== undefined && (question.type === "theory" || !grade || !Number.isInteger(grade.score) || grade.score < 0 || grade.score > question.points || typeof grade.feedback !== "string" || grade.feedback.length > 10000)) throw new Error("Ongeldige beoordeling in dossier.");
   }
   return {
-    id: a.id, bankVersion: BANK_VERSION, level: a.level, candidate: a.candidate,
+    id: a.id, bankVersion: BANK_VERSION, level: a.level, candidate: a.candidate, language: a.language || "nl",
     status: a.status, startedAt: a.startedAt, submittedAt: a.status === "submitted" ? a.submittedAt : null,
     answers: Object.fromEntries(levels[a.level].questions.filter(q => a.answers[q.id] !== undefined).map(q => [q.id, a.answers[q.id]])),
     grades: Object.fromEntries(levels[a.level].questions.filter(q => q.type !== "theory" && a.grades[q.id] !== undefined).map(q => [q.id, { score: a.grades[q.id].score, feedback: a.grades[q.id].feedback }]))
@@ -236,7 +311,7 @@ try {
   }
 } catch (error) { message("Eerdere afnames konden niet worden geladen. De bestaande opslag is niet overschreven. Exporteer of herstel deze eerst via je browser. " + error.message); storageAvailable = false; }
 let loadFailed = !storageAvailable;
-function persist() { if (!loadFailed) save(); else message("Automatische opslag is geblokkeerd om onleesbare bestaande data te beschermen. Exporteer je huidige dossier."); }
+function persist() { if (!loadFailed) save(); else message(tr("Automatische opslag is geblokkeerd om onleesbare bestaande data te beschermen. Exporteer je huidige dossier.", "Automatic saving is blocked to protect unreadable existing data. Export your current dossier.")); }
 function node(tag, text, className) {
   const element = document.createElement(tag);
   if (text !== undefined) element.textContent = text;
@@ -276,19 +351,19 @@ function refreshProgress() {
   const questions = levels[current.level].questions;
   const count = questions.filter(answered).length;
   $("progress").value = count;
-  $("progress-label").textContent = `${count} van 10 vragen beantwoord · ${storageAvailable && !loadFailed ? "Antwoorden worden lokaal opgeslagen" : "Exporteer om je antwoorden te bewaren"}`;
-  [...$("question-nav").children].forEach((button, i) => button.textContent = `${answered(questions[i]) ? "✓" : "○"} ${i + 1}. ${questions[i].type === "theory" ? "Theorie" : questions[i].type === "code" ? "Code" : "Open vraag"}`);
+  $("progress-label").textContent = tr(`${count} van 10 vragen beantwoord · ${storageAvailable && !loadFailed ? "Antwoorden worden lokaal opgeslagen" : "Exporteer om je antwoorden te bewaren"}`, `${count} of 10 questions answered · ${storageAvailable && !loadFailed ? "Answers are saved in this tab" : "Export to preserve your answers"}`);
+  [...$("question-nav").children].forEach((button, i) => button.textContent = `${answered(questions[i]) ? "✓" : "○"} ${i + 1}. ${questions[i].type === "theory" ? tr("Theorie", "Theory") : questions[i].type === "code" ? "Code" : tr("Open vraag", "Open question")}`);
 }
 function elapsed() {
   if (!current || current.status !== "draft") return;
   const minutes = Math.max(0, Math.floor((Date.now() - Date.parse(current.startedAt)) / 60000));
-  $("elapsed").textContent = `${minutes} min verstreken · richttijd ${levels[current.level].time} min`;
+  $("elapsed").textContent = tr(`${minutes} min verstreken · richttijd ${levels[current.level].time} min`, `${minutes} min elapsed · suggested time ${levels[current.level].time} min`);
 }
 function renderCandidate() {
   show("candidate-view");
   const level = levels[current.level];
-  $("attempt-label").textContent = `${current.candidate} · ${level.title}`;
-  $("attempt-title").textContent = "Laat zien hoe je denkt.";
+  $("attempt-label").textContent = `${current.candidate} · ${current.level === NEW_LEVEL ? tr(level.title, "Shared assessment") : level.title}`;
+  $("attempt-title").textContent = tr("Laat zien hoe je denkt.", "Show how you think.");
   $("question-nav").replaceChildren();
   level.questions.forEach((question, i) => {
     const button = node("button");
@@ -296,14 +371,14 @@ function renderCandidate() {
     button.onclick = () => { index = i; renderCandidate(); $("question").focus(); };
     $("question-nav").append(button);
   });
-  const question = level.questions[index];
+  const question = displayQuestion(level.questions[index], current);
   const box = $("question");
   box.replaceChildren();
   box.tabIndex = -1;
-  box.append(node("div", `${index + 1} / 10 · ${question.domain} · ${question.points} punten`, "eyebrow"), node("h2", question.title), node("p", question.prompt));
+  box.append(node("div", `${index + 1} / 10 · ${question.domain} · ${question.points} ${tr("punten", "points")}`, "eyebrow"), node("h2", question.title), node("p", question.prompt));
   if (question.type === "theory") {
     const group = node("fieldset"); group.style.cssText = "border:0;padding:0;margin:20px 0 0";
-    group.append(node("legend", "Kies één antwoord"));
+    group.append(node("legend", tr("Kies één antwoord", "Choose one answer")));
     question.choices.forEach((choice, i) => {
       const label = node("label", undefined, "choice");
       const input = document.createElement("input"); input.type = "radio"; input.name = question.id; input.value = String(i);
@@ -313,13 +388,13 @@ function renderCandidate() {
     });
     box.append(group);
   } else {
-    const label = node("label", question.type === "code" ? "Jouw code, tests en toelichting" : "Jouw antwoord");
+    const label = node("label", question.type === "code" ? tr("Jouw code, tests en toelichting", "Your code, tests and explanation") : tr("Jouw antwoord", "Your answer"));
     label.htmlFor = "answer";
     const input = document.createElement("textarea"); input.id = "answer"; input.maxLength = 60000;
     input.value = current.answers[question.id] ?? question.starter;
     if (question.type === "code") { input.className = "code"; input.spellcheck = false; }
     input.oninput = () => { current.answers[question.id] = input.value; persist(); refreshProgress(); };
-    box.append(label, input, node("small", question.type === "code" ? "Code wordt niet uitgevoerd. Licht aannames toe en voeg de gevraagde tests toe." : "Beschrijf je afwegingen; er is niet altijd één juiste oplossing."));
+    box.append(label, input, node("small", question.type === "code" ? tr("Code wordt niet uitgevoerd. Licht aannames toe en voeg de gevraagde tests toe.", "Code is not executed. Explain assumptions and add the requested tests.") : tr("Beschrijf je afwegingen; er is niet altijd één juiste oplossing.", "Explain your reasoning; there is not always one correct solution.")));
   }
   $("previous").disabled = index === 0;
   $("next").disabled = index === 9;
@@ -344,26 +419,26 @@ function scoreSummary() {
 function renderReview() {
   show("review-view");
   const view = $("review-view"); view.replaceChildren();
-  view.append(node("h1", "Assessment afgerond"), node("p", "Download je dossier met de knop Exporteer dossier en stuur het via het afgesproken kanaal naar de beoordelaar. Sluit deze tab pas nadat je het bestand hebt opgeslagen."));
+  view.append(node("h1", tr("Assessment afgerond", "Assessment complete")), node("p", tr("Download je dossier met de knop Exporteer dossier en stuur het via het afgesproken kanaal naar de beoordelaar. Sluit deze tab pas nadat je het bestand hebt opgeslagen.", "Use Export dossier to download your answers and send them to the assessor through the agreed channel. Save the file before closing this tab.")));
 }
 $("start-button").onclick = () => {
   const candidate = $("candidate").value.trim();
-  if (!candidate) { message("Vul eerst een kandidaatcode in, zonder persoonsgegevens."); $("candidate").focus(); return; }
+  if (!candidate) { message(tr("Vul eerst een kandidaatcode in, zonder persoonsgegevens.", "Enter a candidate code first, without personal data.")); $("candidate").focus(); return; }
   const previous = attempts[0];
   if (previous && previous.candidate === candidate) {
-    current = previous; index = 0;
+    current = previous; index = 0; applyLanguage(current.language || "nl");
     current.status === "draft" ? renderCandidate() : renderReview();
     return;
   }
-  if (previous && !confirm("Deze browsertab bevat al een assessment. Een nieuwe kandidaatcode vervangt die sessie. Exporteer het dossier eerst als je het wilt bewaren. Doorgaan?")) return;
-  current = { id: crypto.randomUUID(), bankVersion: BANK_VERSION, candidate, level: "combined", status: "draft", startedAt: new Date().toISOString(), submittedAt: null, answers: {}, grades: {} };
+  if (previous && !confirm(tr("Deze browsertab bevat al een assessment. Een nieuwe kandidaatcode vervangt die sessie. Exporteer het dossier eerst als je het wilt bewaren. Doorgaan?", "This tab already contains an assessment. A new candidate code will replace it. Export the dossier first if you want to keep it. Continue?"))) return;
+  current = { id: crypto.randomUUID(), bankVersion: BANK_VERSION, candidate, level: NEW_LEVEL, language: uiLanguage, status: "draft", startedAt: new Date().toISOString(), submittedAt: null, answers: {}, grades: {} };
   attempts = [current]; index = 0; persist(); if (storageAvailable && !loadFailed) message(""); renderCandidate();
 };
 $("previous").onclick = () => { if (index > 0) { index--; renderCandidate(); } };
 $("next").onclick = () => { if (index < 9) { index++; renderCandidate(); } };
 $("submit-button").onclick = () => {
   const missing = levels[current.level].questions.filter(q => !answered(q)).length;
-  $("submit-warning").textContent = missing ? `Let op: ${missing} vragen zijn nog niet beantwoord. Toch definitief inleveren?` : "Alle vragen zijn beantwoord. Definitief inleveren?";
+  $("submit-warning").textContent = missing ? tr(`Let op: ${missing} vragen zijn nog niet beantwoord. Toch definitief inleveren?`, `${missing} questions are unanswered. Submit anyway?`) : tr("Alle vragen zijn beantwoord. Definitief inleveren?", "All questions are answered. Submit now?");
   $("submit-check").hidden = false; $("submit-button").hidden = true;
 };
 $("cancel-submit").onclick = () => { $("submit-check").hidden = true; $("submit-button").hidden = false; };
@@ -376,7 +451,7 @@ $("export-button").onclick = () => {
   const dossier = { format: "talentlab-assessment", version: 1, exportedAt: new Date().toISOString(), source: "9altitudes vacature; zelfstandig assessment", attempt: current, score: current.status === "submitted" ? totals() : null };
   const url = URL.createObjectURL(new Blob([JSON.stringify(dossier, null, 2)], { type: "application/json" }));
   const a = document.createElement("a"); a.href = url; a.download = `assessment-${current.level}-${current.id}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
-  message("Dossier geëxporteerd. Het bestand bevat antwoorden en eventuele feedback; bewaar het veilig.");
+  message(tr("Dossier geëxporteerd. Het bestand bevat antwoorden en eventuele feedback; bewaar het veilig.", "Dossier exported. The file contains answers and any feedback; store it securely."));
 };
 setInterval(elapsed, 15000);
 renderSessions();
