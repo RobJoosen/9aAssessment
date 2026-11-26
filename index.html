@@ -101,10 +101,10 @@
       <label for="language" data-en="Language">Taal</label><select id="language"><option value="nl">Nederlands</option><option value="en">English</option></select>
       <p class="muted" data-en="The language is saved when you start and restored when you resume.">De taal wordt bij het starten opgeslagen en bij hervatten hersteld.</p>
       <label for="candidate" data-en="Candidate code">Kandidaatcode</label><input id="candidate" type="text" maxlength="80" placeholder="Bijvoorbeeld K-2026-014 (geen naam nodig)" autocomplete="off">
-      <p class="muted" style="margin-top:12px" data-en="One assessment · 10 questions · 100 points · suggested time 60 minutes">Eén assessment · 10 vragen · 100 punten · richttijd 60 minuten</p>
+      <p class="muted" style="margin-top:12px" data-en="One assessment · 12 questions · 100 points · suggested time 60 minutes">Eén assessment · 12 vragen · 100 punten · richttijd 60 minuten</p>
       <button class="primary" id="start-button" data-en="Start assessment">Start assessment</button>
       <details><summary data-en="Instructions and rules">Werkwijze en spelregels</summary>
-        <p data-en="Everyone receives the same mix of foundational and advanced questions: 4 multiple-choice questions (20 points), 2 coding exercises (40 points) and 4 open questions (40 points). Total: 100 points. The suggested time is 60 minutes, not an automatic deadline. For example, allow 8 minutes for theory, 24 for code and 28 for open questions.">Iedereen krijgt dezelfde mix van basis- en verdiepende vragen: 4 meerkeuzevragen (20 punten), 2 code-opgaven (40 punten) en 4 open vragen (40 punten). Totaal: 100 punten. De richttijd is 60 minuten, geen automatische deadline. Verdeel de tijd bijvoorbeeld over 8 minuten theorie, 24 minuten code en 28 minuten open vragen.</p>
+        <p data-en="Everyone receives the same mix of foundational and advanced questions: 4 multiple-choice questions (20 points), 4 coding exercises (40 points) and 4 open questions (40 points). Total: 100 points. The suggested time is 60 minutes, not an automatic deadline. For example, allow 8 minutes for theory, 28 for code and 24 for open questions.">Iedereen krijgt dezelfde mix van basis- en verdiepende vragen: 4 meerkeuzevragen (20 punten), 4 code-opgaven (40 punten) en 4 open vragen (40 punten). Totaal: 100 punten. De richttijd is 60 minuten, geen automatische deadline. Verdeel de tijd bijvoorbeeld over 8 minuten theorie, 28 minuten code en 24 minuten open vragen.</p>
         <p data-en="Microsoft Learn and language references are permitted; generative AI and help from others are not, unless the assessor makes the same alternative arrangements for all candidates beforehand. State your assumptions. Pseudocode is allowed where requested. Code is not executed or compiled automatically.">Gebruik van Microsoft Learn en taalreferenties is toegestaan; generatieve AI en hulp van anderen niet, tenzij de beoordelaar vooraf voor alle kandidaten dezelfde afwijkende afspraken maakt. Geef aannames expliciet aan. Pseudocode mag waar gevraagd. Code wordt niet uitgevoerd of automatisch gecompileerd.</p>
         <p data-en="Theory is scored automatically. A person assesses code and open answers using consistent criteria and a follow-up interview. The assessor determines a provisional level indication; there is no automatic hiring or rejection decision. This assessment is not validated and is not 9altitudes policy.">Theorie wordt automatisch nagekeken. Code en open antwoorden beoordeelt een mens met vaste criteria en een vervolginterview. De beoordelaar bepaalt zelf een voorlopige niveau-indicatie; er is geen automatische aanname- of afwijzingsbeslissing. Deze toets is niet gevalideerd en geen beleid van 9altitudes.</p>
         <p data-en="Privacy and limitations: answers are stored temporarily in this browser tab and are not automatically sent to the assessor. Export the dossier and submit it through the agreed channel. Save the file before closing this tab. There is no account or access control, and answer models are included in the page. Do not share real customer data, tokens or personal data.">Privacy en grenzen: antwoorden worden alleen tijdelijk in deze browsertab opgeslagen en niet automatisch naar de beoordelaar gestuurd. Exporteer na afloop het dossier en lever het in via het afgesproken kanaal. Sluit de tab pas nadat je het bestand hebt opgeslagen. Er is geen account of technische toegangsbeveiliging en antwoordmodellen staan in de pagina. Deel geen echte klantgegevens, tokens of persoonsgegevens.</p>
@@ -183,7 +183,8 @@ levels.combined = {
   ]
 };
 // Embedded in both standalone pages; keep their question definitions identical.
-const NEW_LEVEL = "combined-v3";
+const PREVIOUS_LEVEL = "combined-v3";
+const NEW_LEVEL = "combined-v4";
 const revisedOpenQuestions = {
   j7: {
     title: "Dubbele contacten",
@@ -210,7 +211,7 @@ const revisedOpenQuestions = {
     model: "Onderzoek samen traces, reviews en eerdere incidenten. Voeg bijvoorbeeld testfixtures en controles voor brede queries toe; laat teamleden samen reviews uitvoeren. Volg bijvoorbeeld het aantal relevante productiefouten en de doorlooptijd, met context."
   }
 };
-levels[NEW_LEVEL] = {
+levels[PREVIOUS_LEVEL] = {
   title: "Gezamenlijk assessment", time: 60,
   questions: levels.combined.questions.map(question => {
     if (revisedOpenQuestions[question.id]) return { ...question, ...revisedOpenQuestions[question.id] };
@@ -232,12 +233,32 @@ const englishQuestions = {
   s7: { domain: "Architecture", title: "A reliable ERP integration", prompt: "Changes in Dynamics 365 CE must be sent to an ERP system. The ERP may be unavailable for two hours and a message may arrive more than once. Explain how you would preserve changes during the outage, prevent duplicate processing and check after recovery that everything was processed." },
   s8: { domain: "Technical leadership", title: "Improving plug-in quality", prompt: "A team delivers plug-ins that are often slow and have few tests. What would you do first to understand the cause? Name two concrete improvements the team could introduce together and one way to measure whether they help." }
 };
+const shortCodeQuestions = [
+  { ...written("j11", "code", "C# / strings", "Een naam opschonen", "Maak FormatName af. Geef \"Unknown\" terug als name null, leeg of alleen witruimte is. Geef anders de naam zonder witruimte aan het begin en einde terug. Noem twee testgevallen met de verwachte uitkomst.", 'static string FormatName(string? name)\n{\n    // TODO\n}\n', ["Null, lege en whitespace-invoer correct herkennen (3).", "Bij lege invoer Unknown teruggeven; anders trimmen (4).", "Twee relevante testgevallen met verwachte uitkomst (3)."], 'return string.IsNullOrWhiteSpace(name) ? "Unknown" : name.Trim();\nTests: null → Unknown; " Ada " → Ada.'), points: 10 },
+  { ...written("j12", "code", "C# / rekenen", "Een orderbedrag berekenen", "Maak CalculateTotal af: vermenigvuldig de prijs met de hoeveelheid. Een negatieve prijs of hoeveelheid is ongeldig: gooi dan ArgumentOutOfRangeException. Nul is toegestaan. Noem twee testgevallen met de verwachte uitkomst.", 'static decimal CalculateTotal(decimal price, int quantity)\n{\n    // TODO\n}\n', ["Negatieve prijs en hoeveelheid afwijzen met de gevraagde uitzondering (4).", "Prijs en hoeveelheid correct vermenigvuldigen, inclusief nul (3).", "Twee relevante testgevallen met verwachte uitkomst (3)."], "Bij price < 0 of quantity < 0: gooi ArgumentOutOfRangeException. Retourneer anders price * quantity.\nTests: (2.50m, 3) → 7.50m; (-1m, 1) → uitzondering."), points: 10 },
+  { ...written("m11", "code", "Dataverse", "Een veld uit Target lezen", "Maak ReadName af. Target is een Dataverse Entity. Geef \"Not provided\" terug als name niet in Target staat. Geef \"Empty\" terug als name aanwezig maar null, leeg of witruimte is. Geef anders de getrimde waarde terug. Noem twee testgevallen. Microsoft.Xrm.Sdk is beschikbaar.", 'static string ReadName(Entity target)\n{\n    // TODO\n}\n', ["Afwezig veld onderscheiden met Contains (3).", "Null en witruimte behandelen en geldige waarde trimmen (4).", "Twee relevante testgevallen met verwachte uitkomst (3)."], 'if (!target.Contains("name")) return "Not provided";\nvar name = target.GetAttributeValue<string>("name");\nreturn string.IsNullOrWhiteSpace(name) ? "Empty" : name.Trim();\nTests: ontbrekend → Not provided; name=" Ada " → Ada.'), points: 10 },
+  { ...written("m12", "code", "C# / integratie", "Tijdelijke HTTP-fouten herkennen", "Maak IsRetryable af. Geef true voor HTTP-status 429 en voor statuscodes 500 tot en met 599; geef anders false. De aanroeper regelt het aantal retries en veilige herhaling. Noem twee testgevallen met de verwachte uitkomst.", 'static bool IsRetryable(int statusCode)\n{\n    // TODO\n}\n', ["429 correct herkennen (3).", "Het bereik 500 tot en met 599 correct afbakenen en andere codes uitsluiten (4).", "Twee relevante testgevallen met verwachte uitkomst (3)."], "return statusCode == 429 || (statusCode >= 500 && statusCode <= 599);\nTests: 429 → true; 400 → false; controleer ook 500 en 599."), points: 10 }
+];
+levels[NEW_LEVEL] = {
+  title: "Gezamenlijk assessment", time: 60,
+  questions: [
+    ...levels[PREVIOUS_LEVEL].questions.slice(0, 4),
+    ...shortCodeQuestions,
+    ...levels[PREVIOUS_LEVEL].questions.slice(6)
+  ]
+};
+Object.assign(englishQuestions, {
+  j11: { domain: "C# / strings", title: "Clean up a name", prompt: 'Complete FormatName. Return "Unknown" if name is null, empty or only whitespace. Otherwise return the name without leading or trailing whitespace. Give two test cases with their expected results.' },
+  j12: { domain: "C# / arithmetic", title: "Calculate an order amount", prompt: "Complete CalculateTotal: multiply price by quantity. A negative price or quantity is invalid: throw ArgumentOutOfRangeException. Zero is allowed. Give two test cases with their expected results." },
+  m11: { domain: "Dataverse", title: "Read a field from Target", prompt: 'Complete ReadName. Target is a Dataverse Entity. Return "Not provided" if name is absent from Target. Return "Empty" if name is present but null, empty or whitespace. Otherwise return the trimmed value. Give two test cases. Microsoft.Xrm.Sdk is available.' },
+  m12: { domain: "C# / integration", title: "Recognize temporary HTTP errors", prompt: "Complete IsRetryable. Return true for HTTP status 429 and status codes 500 through 599 inclusive; return false otherwise. The caller handles the retry limit and safe replay. Give two test cases with their expected results." }
+});
 function displayQuestion(question, attempt) {
-  return attempt.level === NEW_LEVEL && attempt.language === "en"
+  return (attempt.level === NEW_LEVEL || attempt.level === PREVIOUS_LEVEL) && attempt.language === "en"
     ? { ...question, ...englishQuestions[question.id] }
     : question;
 }
-function isCombined(attempt) { return attempt.level === "combined" || attempt.level === NEW_LEVEL; }
+function isCombined(attempt) { return attempt.level === "combined" || attempt.level === PREVIOUS_LEVEL || attempt.level === NEW_LEVEL; }
 
 const STORAGE_KEY = "9aassessment.candidate.session.v1";
 let attempts = [];
@@ -350,8 +371,9 @@ function answered(question) {
 function refreshProgress() {
   const questions = levels[current.level].questions;
   const count = questions.filter(answered).length;
+  $("progress").max = questions.length;
   $("progress").value = count;
-  $("progress-label").textContent = tr(`${count} van 10 vragen beantwoord · ${storageAvailable && !loadFailed ? "Antwoorden worden lokaal opgeslagen" : "Exporteer om je antwoorden te bewaren"}`, `${count} of 10 questions answered · ${storageAvailable && !loadFailed ? "Answers are saved in this tab" : "Export to preserve your answers"}`);
+  $("progress-label").textContent = tr(`${count} van ${questions.length} vragen beantwoord · ${storageAvailable && !loadFailed ? "Antwoorden worden lokaal opgeslagen" : "Exporteer om je antwoorden te bewaren"}`, `${count} of ${questions.length} questions answered · ${storageAvailable && !loadFailed ? "Answers are saved in this tab" : "Export to preserve your answers"}`);
   [...$("question-nav").children].forEach((button, i) => button.textContent = `${answered(questions[i]) ? "✓" : "○"} ${i + 1}. ${questions[i].type === "theory" ? tr("Theorie", "Theory") : questions[i].type === "code" ? "Code" : tr("Open vraag", "Open question")}`);
 }
 function elapsed() {
@@ -362,7 +384,7 @@ function elapsed() {
 function renderCandidate() {
   show("candidate-view");
   const level = levels[current.level];
-  $("attempt-label").textContent = `${current.candidate} · ${current.level === NEW_LEVEL ? tr(level.title, "Shared assessment") : level.title}`;
+  $("attempt-label").textContent = `${current.candidate} · ${isCombined(current) ? tr(level.title, "Shared assessment") : level.title}`;
   $("attempt-title").textContent = tr("Laat zien hoe je denkt.", "Show how you think.");
   $("question-nav").replaceChildren();
   level.questions.forEach((question, i) => {
@@ -375,7 +397,7 @@ function renderCandidate() {
   const box = $("question");
   box.replaceChildren();
   box.tabIndex = -1;
-  box.append(node("div", `${index + 1} / 10 · ${question.domain} · ${question.points} ${tr("punten", "points")}`, "eyebrow"), node("h2", question.title), node("p", question.prompt));
+  box.append(node("div", `${index + 1} / ${level.questions.length} · ${question.domain} · ${question.points} ${tr("punten", "points")}`, "eyebrow"), node("h2", question.title), node("p", question.prompt));
   if (question.type === "theory") {
     const group = node("fieldset"); group.style.cssText = "border:0;padding:0;margin:20px 0 0";
     group.append(node("legend", tr("Kies één antwoord", "Choose one answer")));
@@ -397,7 +419,7 @@ function renderCandidate() {
     box.append(label, input, node("small", question.type === "code" ? tr("Code wordt niet uitgevoerd. Licht aannames toe en voeg de gevraagde tests toe.", "Code is not executed. Explain assumptions and add the requested tests.") : tr("Beschrijf je afwegingen; er is niet altijd één juiste oplossing.", "Explain your reasoning; there is not always one correct solution.")));
   }
   $("previous").disabled = index === 0;
-  $("next").disabled = index === 9;
+  $("next").disabled = index === level.questions.length - 1;
   $("submit-check").hidden = true; $("submit-button").hidden = false;
   refreshProgress(); elapsed();
 }
@@ -408,13 +430,6 @@ function totals() {
   const graded = manual.filter(q => current.grades[q.id] !== undefined).length;
   const manualScore = manual.reduce((sum, q) => sum + (current.grades[q.id]?.score || 0), 0);
   return { theoryScore, manualScore, graded, total: theoryScore + manualScore, complete: graded === manual.length };
-}
-function scoreSummary() {
-  const score = totals();
-  $("score-summary").textContent = score.complete ? `${score.total} / 100` : `${score.theoryScore} / 20 theorie`;
-  $("score-detail").textContent = score.complete
-    ? `${score.total >= 80 ? "Sterk bewijs op dit niveau" : score.total >= 60 ? "Gemengd bewijs: verdiep in het interview" : "Beperkt bewijs: bespreek hiaten en context"}. Indicatieve rubricering, geen selectieadvies. Bekijk domeinen, code en argumentatie afzonderlijk.`
-    : `${score.graded} van 6 handmatige beoordelingen ingevuld. Nog geen totaaloordeel.`;
 }
 function renderReview() {
   show("review-view");
@@ -435,7 +450,7 @@ $("start-button").onclick = () => {
   attempts = [current]; index = 0; persist(); if (storageAvailable && !loadFailed) message(""); renderCandidate();
 };
 $("previous").onclick = () => { if (index > 0) { index--; renderCandidate(); } };
-$("next").onclick = () => { if (index < 9) { index++; renderCandidate(); } };
+$("next").onclick = () => { if (index < levels[current.level].questions.length - 1) { index++; renderCandidate(); } };
 $("submit-button").onclick = () => {
   const missing = levels[current.level].questions.filter(q => !answered(q)).length;
   $("submit-warning").textContent = missing ? tr(`Let op: ${missing} vragen zijn nog niet beantwoord. Toch definitief inleveren?`, `${missing} questions are unanswered. Submit anyway?`) : tr("Alle vragen zijn beantwoord. Definitief inleveren?", "All questions are answered. Submit now?");
