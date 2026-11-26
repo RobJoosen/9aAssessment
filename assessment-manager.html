@@ -57,8 +57,11 @@
   .code { font-family: Consolas, monospace; font-size: 13px; tab-size: 4; background: var(--code); min-height: 310px; white-space: pre; }
   .layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 22px; align-items: start; }
   nav { position: sticky; top: 20px; }
-  nav button { display: block; width: 100%; text-align: left; margin-bottom: 7px; padding: 10px; font-size: 12px; }
+  .question-group { margin-bottom: 12px; }
+  .question-group-heading { border-bottom: 1px solid var(--border); color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .8px; margin: 8px 0 5px; padding: 0 4px 5px; text-transform: uppercase; }
+  nav button { display: block; width: 100%; text-align: left; margin-bottom: 5px; padding: 9px; font-size: 12px; }
   nav button[aria-current="step"] { border-color: var(--accent); background: var(--soft); }
+  .question-section { margin: 0 0 12px; }
   .status { padding: 12px 16px; border-radius: 4px; border-left: 3px solid var(--accent); background: var(--soft); font-size: 13px; margin: 14px 0; }
   #message { position: sticky; top: 0; z-index: 3; }
   #message:empty { display: none; }
@@ -81,7 +84,7 @@
   .saved-item button { flex-shrink: 0; }
   [hidden] { display: none !important; }
   footer { border-top: 1px solid var(--border); padding-top: 24px; }
-  @media (max-width: 720px) { .shell { padding: 20px 16px; } .grid, .layout { grid-template-columns: 1fr; } nav { position: static; display: flex; gap: 6px; overflow-x: auto; min-width: 0; } nav button { min-width: 115px; } .card { padding: 20px; } .hero { padding: 38px 24px; } .hero::after { width: 180px; height: 180px; border-width: 22px; right: -90px; bottom: -140px; } .saved-item { flex-wrap: wrap; } }
+  @media (max-width: 720px) { .shell { padding: 20px 16px; } .grid, .layout { grid-template-columns: 1fr; } nav { position: static; display: flex; gap: 14px; overflow-x: auto; min-width: 0; } .question-group { flex: 0 0 160px; } nav button { min-width: 0; } .card { padding: 20px; } .hero { padding: 38px 24px; } .hero::after { width: 180px; height: 180px; border-width: 22px; right: -90px; bottom: -140px; } .saved-item { flex-wrap: wrap; } }
   @media print { header button, nav, .actions, #message, #home, #candidate-view { display: none !important; } .shell { padding: 0; } .card { break-inside: avoid; } .review-answer { max-height: none; } details > * { display: block !important; } }
 </style>
 </head>
@@ -314,9 +317,11 @@ Object.assign(englishQuestions, {
 levels[AZURE_LEVEL] = {
   title: "Gezamenlijk assessment", time: 60,
   questions: [
-    ...levels[NEW_LEVEL].questions,
+    ...levels[NEW_LEVEL].questions.filter(question => question.type === "theory"),
     ...azureTheoryQuestions,
-    ...azureCodeQuestions
+    ...levels[NEW_LEVEL].questions.filter(question => question.type === "code"),
+    ...azureCodeQuestions,
+    ...levels[NEW_LEVEL].questions.filter(question => question.type === "open")
   ]
 };
 Object.assign(englishQuestions, {
@@ -641,13 +646,29 @@ function answered(question) {
   const value = current.answers[question.id];
   return question.type === "theory" ? Number.isInteger(value) : typeof value === "string" && value.trim().length > 0 && value.trim() !== (question.starter || "").trim();
 }
+function questionGroupLabel(type) {
+  const labels = {
+    theory: ["Theorievragen", "Theory"],
+    code: ["Codevragen", "Coding"],
+    open: ["Open vragen", "Open questions"]
+  };
+  const [nl, en] = labels[type] || ["Vragen", "Questions"];
+  return tr(nl, en);
+}
 function refreshProgress() {
   const questions = levels[current.level].questions;
   const count = questions.filter(answered).length;
   $("progress").max = questions.length;
   $("progress").value = count;
   $("progress-label").textContent = tr(`${count} van ${questions.length} vragen beantwoord · ${storageAvailable && !loadFailed ? "Antwoorden worden lokaal opgeslagen" : "Exporteer om je antwoorden te bewaren"}`, `${count} of ${questions.length} questions answered · ${storageAvailable && !loadFailed ? "Answers are saved locally" : "Export to preserve your answers"}`);
-  [...$("question-nav").children].forEach((button, i) => button.textContent = `${answered(questions[i]) ? "✓" : "○"} ${i + 1}. ${questions[i].type === "theory" ? tr("Theorie", "Theory") : questions[i].type === "code" ? "Code" : tr("Open vraag", "Open question")}`);
+  for (const group of $("question-nav").children) {
+    for (const button of group.children) {
+      const questionIndex = button.questionIndex;
+      if (!Number.isInteger(questionIndex)) continue;
+      const question = questions[questionIndex];
+      button.textContent = `${answered(question) ? "✓" : "○"} ${questionIndex + 1}. ${questionGroupLabel(question.type)}`;
+    }
+  }
 }
 function elapsed() {
   if (!current || current.status !== "draft") return;
@@ -660,17 +681,29 @@ function renderCandidate() {
   $("attempt-label").textContent = `${current.candidate} · ${isCombined(current) ? tr(level.title, "Shared assessment") : level.title}`;
   $("attempt-title").textContent = tr("Laat zien hoe je denkt.", "Show how you think.");
   $("question-nav").replaceChildren();
+  let currentType = null;
+  let currentGroup = null;
   level.questions.forEach((question, i) => {
+    if (question.type !== currentType) {
+      currentType = question.type;
+      currentGroup = node("div", undefined, "question-group");
+      const count = level.questions.filter(item => item.type === currentType).length;
+      currentGroup.append(node("div", `${questionGroupLabel(currentType)} · ${count}`, "question-group-heading"));
+      $("question-nav").append(currentGroup);
+    }
     const button = node("button");
+    button.questionIndex = i;
     if (i === index) button.setAttribute("aria-current", "step");
     button.onclick = () => { index = i; renderCandidate(); $("question").focus(); };
-    $("question-nav").append(button);
+    currentGroup.append(button);
   });
   const question = displayQuestion(level.questions[index], current);
   const box = $("question");
   box.replaceChildren();
   box.tabIndex = -1;
-  box.append(node("div", `${index + 1} / ${level.questions.length} · ${question.domain} · ${question.points} ${tr("punten", "points")}`, "eyebrow"), node("h2", question.title), node("p", question.prompt));
+  const groupPosition = level.questions.slice(0, index + 1).filter(item => item.type === question.type).length;
+  const groupCount = level.questions.filter(item => item.type === question.type).length;
+  box.append(node("div", `${questionGroupLabel(question.type)} · ${groupPosition} / ${groupCount}`, "question-section eyebrow"), node("div", `${index + 1} / ${level.questions.length} · ${question.domain} · ${question.points} ${tr("punten", "points")}`, "eyebrow"), node("h2", question.title), node("p", question.prompt));
   if (question.type === "theory") {
     const group = node("fieldset"); group.style.cssText = "border:0;padding:0;margin:20px 0 0";
     group.append(node("legend", tr("Kies één antwoord", "Choose one answer")));
